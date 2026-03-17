@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22SOCAR%20Polymer%20Log%20Sheet%22%2C%22short_name%22%3A%20%22SP%20LogSheet%22%2C%22description%22%3A%20%22PP%20Field%2C%20Utility%2C%20Extruder%20%26%20DCS%20Log%20Sheet%20Platform%22%2C%22start_url%22%3A%20%22.%22%2C%22display%22%3A%20%22standalone%22%2C%22background_color%22%3A%20%22%23080d12%22%2C%22theme_color%22%3A%20%22%230f1720%22%2C%22orientation%22%3A%20%22any%22%2C%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27192%27%20height%3D%27192%27%20rx%3D%2724%27%20fill%3D%27%25230f1720%27/%3E%3Ctext%20x%3D%2750%2525%27%20y%3D%2755%2525%27%20font-size%3D%27110%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%3E%E2%9A%97%3C/text%3E%3C/svg%3E%22%2C%22sizes%22%3A%20%22192x192%22%2C%22type%22%3A%20%22image/svg%2Bxml%22%2C%22purpose%22%3A%20%22any%20maskable%22%7D%2C%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%2764%27%20fill%3D%27%25230f1720%27/%3E%3Ctext%20x%3D%2750%2525%27%20y%3D%2755%2525%27%20font-size%3D%27300%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%3E%E2%9A%97%3C/text%3E%3C/svg%3E%22%2C%22sizes%22%3A%20%22512x512%22%2C%22type%22%3A%20%22image/svg%2Bxml%22%2C%22purpose%22%3A%20%22any%20maskable%22%7D%5D%7D">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='24' fill='%230f1720'/><text x='50%25' y='55%25' font-size='110' text-anchor='middle' dominant-baseline='middle'>⚗</text></svg>">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1720">
+<title>SOCAR Polymer — Log Sheet Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#080d12;--s1:#0f1720;--s2:#162030;--s3:#1c2a3c;--s4:#223040;
+  --bdr:#253448;--bdr2:#3a5470;
+  --acc:#00c8ff;--acc2:#00e8aa;--warn:#ffb340;--danger:#ff4060;--purple:#a78bfa;
+  --text:#cce4ff;--muted:#4a6a8a;--faint:#1c2a3c;
+  --day:#ffb340;--night:#7b8ede;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);}
+a{color:var(--acc);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--s1);}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
+
+/* ── LOGIN ── */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.lcard{background:var(--s1);border:1px solid var(--bdr);border-radius:16px;padding:40px 36px;width:100%;max-width:460px;}
+.llogorow{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+.llogoico{width:48px;height:48px;border-radius:12px;background:#00c8ff12;border:1px solid #00c8ff40;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.llogotxt{font-family:var(--mono);font-size:12px;color:var(--acc);letter-spacing:.06em;}
+.llogosub{font-size:11px;color:var(--muted);margin-top:3px;}
+.ltit{font-size:22px;font-weight:700;margin-bottom:4px;}
+.lsub{font-size:13px;color:var(--muted);margin-bottom:26px;}
+.fg{margin-bottom:14px;}
+.fl{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;display:block;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--bdr);color:var(--text);padding:10px 13px;border-radius:7px;font-family:var(--font);font-size:14px;outline:none;transition:border-color .15s;}
+.fi:focus{border-color:var(--acc);}
+.fsel{width:100%;background:var(--s2);border:1px solid var(--bdr);color:var(--text);padding:10px 13px;border-radius:7px;font-family:var(--font);font-size:14px;outline:none;cursor:pointer;}
+.fsel option{background:var(--s2);}
+.lbtn{width:100%;background:var(--acc);color:#080d12;border:none;padding:12px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .15s;}
+.lbtn:hover{opacity:.88;}
+.nfc-lb{width:100%;background:transparent;border:1px solid var(--bdr2);color:var(--acc);padding:10px;border-radius:8px;font-family:var(--mono);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:all .15s;}
+.nfc-lb:hover{border-color:var(--acc);background:var(--s3);}
+#lnfc{text-align:center;font-size:11px;font-family:var(--mono);color:var(--acc);min-height:16px;margin-top:6px;}
+
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--s1);border-bottom:1px solid var(--bdr);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px;flex-wrap:wrap;overflow-x:auto;}
+.tb-left{display:flex;align-items:center;gap:14px;}
+.tb-logo{font-family:var(--mono);font-size:11px;color:var(--acc);}
+.tb-logo span{color:var(--muted);}
+.tb-info{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.tb-op{display:flex;align-items:center;gap:8px;}
+.op-av{width:28px;height:28px;border-radius:50%;background:var(--s3);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--acc);font-family:var(--mono);flex-shrink:0;}
+.op-nm{font-size:13px;font-weight:600;}
+.op-sh{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.tb-acts{display:flex;gap:5px;flex-wrap:wrap;}
+.tbtn{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:5px 10px;border-radius:5px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.tbtn:hover{border-color:var(--acc2);color:var(--acc2);}
+.tbtn.nfc{border-color:var(--acc);color:var(--acc);}
+.tbtn.nfc.scanning{animation:nfcpulse 1s infinite;}
+@keyframes nfcpulse{0%,100%{border-color:var(--acc);}50%{border-color:transparent;}}
+.tbtn.send{background:var(--acc2);color:#080d12;border-color:var(--acc2);font-weight:700;}
+.tbtn.send:hover{opacity:.88;color:#080d12;}
+.tbtn.dash{background:var(--purple);color:#080d12;border-color:var(--purple);font-weight:700;}
+.tbtn.dash:hover{opacity:.88;color:#080d12;}
+
+/* MODULE TABS */
+.mod-tabs{background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.mod-tabs::-webkit-scrollbar{display:none;}
+.mtab{padding:9px 18px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:8px;}
+.mtab:hover{color:var(--text);}
+.mtab.active{color:var(--text);border-bottom-color:var(--acc);font-weight:600;}
+.mod-badge{font-size:9px;padding:1px 5px;border-radius:3px;font-family:var(--mono);}
+
+/* SLOT TABS */
+.slot-tabs{background:var(--s2);border-bottom:1px solid var(--bdr);display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0;padding:0 4px;}
+.slot-tabs::-webkit-scrollbar{display:none;}
+.stab{padding:8px 14px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.stab:hover{color:var(--text);}
+.stab.active-day{color:var(--day);border-bottom-color:var(--day);font-weight:600;}
+.stab.active-night{color:var(--night);border-bottom-color:var(--night);font-weight:600;}
+.stab.active-all{color:var(--acc);border-bottom-color:var(--acc);font-weight:600;}
+.sbadge{font-size:9px;padding:1px 5px;border-radius:3px;font-family:var(--mono);}
+.sbadge.day{background:#ffb34018;color:var(--day);}
+.sbadge.night{background:#7b8ede18;color:var(--night);}
+.sbadge.done{background:#00e8aa18;color:var(--acc2);}
+.sbadge.devia{background:#ff406018;color:var(--danger);}
+
+/* MAIN AREA */
+.main{flex:1;display:flex;flex-direction:column;}
+.mod-panel{display:none;flex:1;flex-direction:column;}
+.mod-panel.active{display:flex;}
+.tbl-wrap{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;}
+
+/* LOG TABLE */
+.log-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.log-tbl th{background:var(--s2);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:7px 10px;text-align:center;border-bottom:1px solid var(--bdr);border-right:1px solid var(--faint);white-space:nowrap;position:sticky;top:0;z-index:10;}
+.log-tbl th.lth{text-align:left;}
+.log-tbl th.active-col{background:#00c8ff10!important;border-top:2px solid var(--acc);}
+.log-tbl td{padding:4px 8px;border-bottom:1px solid #0f1720;border-right:1px solid var(--faint);vertical-align:middle;}
+.log-tbl tr:hover td{background:#ffffff04;}
+.area-hdr td{background:var(--s2)!important;font-weight:600;font-size:11px;font-family:var(--mono);color:var(--acc);letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;}
+.tag-c{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;white-space:nowrap;}
+.unit-c{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;}
+.norm-c{font-family:var(--mono);font-size:10px;color:var(--acc2);text-align:center;}
+.desc-c{color:var(--text);font-size:12px;min-width:220px;}
+
+/* INPUT CELL */
+.vcell{text-align:center;padding:3px 5px;min-width:90px;}
+.vcell.inactive{opacity:.3;pointer-events:none;}
+.vinp{background:var(--s2);border:1px solid var(--bdr);color:var(--text);padding:4px 7px;border-radius:4px;font-family:var(--mono);font-size:11px;width:100%;text-align:center;outline:none;transition:all .15s;}
+.vinp:focus{border-color:var(--acc);background:var(--s3);}
+.vinp.ok{border-color:#00e8aa40;background:#00e8aa06;}
+.vinp.bad{border-color:#ff406070!important;background:#ff406012!important;color:var(--danger)!important;}
+.vinp.locked{opacity:.6;cursor:not-allowed;background:var(--faint)!important;}
+.vmeta{font-size:9px;font-family:var(--mono);color:var(--acc2);margin-top:1px;line-height:1.3;}
+.vmeta.locked-meta{color:var(--warn);}
+.vlock{font-size:9px;color:var(--warn);font-family:var(--mono);}
+
+/* CHECKBOX/RADIO */
+.cb-grp{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+.cb-item{display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;}
+.cb-item input{accent-color:var(--acc);cursor:pointer;}
+.rb-grp{display:flex;gap:6px;flex-direction:column;align-items:flex-start;padding:2px 4px;}
+.rb-item{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;}
+.rb-item input{accent-color:var(--acc);cursor:pointer;}
+
+/* DCS TABLE — hourly matrix */
+.dcs-wrap{overflow:auto;-webkit-overflow-scrolling:touch;min-height:300px;}
+.dcs-tbl{border-collapse:collapse;font-size:11px;font-family:var(--mono);}
+.dcs-tbl th{background:var(--s2);color:var(--muted);font-size:9px;padding:5px 6px;text-align:center;border:1px solid var(--bdr);white-space:nowrap;position:sticky;top:0;z-index:10;}
+.dcs-tbl th.grp{background:var(--s3);color:var(--acc);font-size:9px;letter-spacing:.04em;}
+.dcs-tbl td{padding:2px 3px;border:1px solid #0f1720;}
+.dcs-tbl tr.cur-hour td{background:#00c8ff08;}
+.hour-cell{font-weight:600;color:var(--acc2);text-align:center;padding:2px 6px;font-size:11px;}
+.dcs-inp{background:transparent;border:none;color:var(--text);padding:3px 4px;font-family:var(--mono);font-size:11px;width:60px;text-align:center;outline:none;}
+.dcs-inp:focus{background:var(--s3);border-radius:3px;}
+.dcs-inp.ok{color:var(--acc2);}
+.dcs-inp.bad{color:var(--danger);background:#ff406010;border-radius:3px;}
+.dcs-inp.locked{opacity:.5;cursor:not-allowed;}
+
+/* SUMMARY BAR */
+.sumbar{background:var(--s1);border-top:1px solid var(--bdr);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.prog-txt{font-size:11px;font-family:var(--mono);color:var(--muted);}
+.prog-bar{height:4px;background:var(--bdr);border-radius:2px;flex:1;max-width:180px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--acc2);border-radius:2px;transition:width .3s;}
+.devia-badge{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:#ff406018;color:var(--danger);border:1px solid #ff406040;cursor:pointer;}
+.sumbar-acts{display:flex;gap:7px;margin-left:auto;}
+.ssbtn{padding:8px 16px;border-radius:6px;font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.ssbtn.pri{background:var(--acc);color:#080d12;border:none;font-weight:700;}
+.ssbtn.pri:hover{opacity:.88;}
+.ssbtn.sec{background:transparent;border:1px solid var(--bdr2);color:var(--acc2);}
+.ssbtn.sec:hover{border-color:var(--acc2);background:var(--s3);}
+
+/* NFC OVERLAY */
+.nfc-ov{display:none;position:fixed;inset:0;background:#000a;z-index:999;align-items:center;justify-content:center;}
+.nfc-ov.on{display:flex;}
+.nfc-mod{background:var(--s1);border:1px solid var(--acc);border-radius:16px;padding:30px 26px;width:290px;text-align:center;}
+.nfc-ring{width:72px;height:72px;border-radius:50%;border:3px solid var(--acc);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;animation:nr 1.2s ease-in-out infinite;font-size:26px;}
+@keyframes nr{0%,100%{box-shadow:0 0 0 0 rgba(0,200,255,.4);}50%{box-shadow:0 0 0 14px rgba(0,200,255,0);}}
+.nfc-mod-t{font-size:15px;font-weight:600;margin-bottom:5px;}
+.nfc-mod-s{font-size:11px;color:var(--muted);margin-bottom:12px;font-family:var(--mono);}
+.nfc-st{font-size:11px;font-family:var(--mono);color:var(--acc2);min-height:15px;margin-bottom:12px;}
+.nfc-can{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:7px 18px;border-radius:6px;font-family:var(--font);font-size:12px;cursor:pointer;}
+
+/* DASHBOARD OVERLAY */
+.dash-ov{display:none;position:fixed;inset:0;background:#000b;z-index:990;overflow:auto;padding:20px;}
+.dash-ov.on{display:flex;align-items:flex-start;justify-content:center;}
+.dash-card{background:var(--s1);border:1px solid var(--bdr);border-radius:16px;width:100%;max-width:900px;overflow:hidden;}
+.dash-hdr{background:var(--s2);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);}
+.dash-hdr-t{font-size:16px;font-weight:700;}
+.dash-close{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:11px;}
+.dash-close:hover{border-color:var(--danger);color:var(--danger);}
+.dash-body{padding:20px;}
+.dash-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;}
+.dmet{background:var(--s2);border-radius:8px;padding:12px 14px;border-left:3px solid var(--bdr2);}
+.dmet.ok{border-left-color:var(--acc2);}
+.dmet.bad{border-left-color:var(--danger);}
+.dmet.warn{border-left-color:var(--warn);}
+.dmet-lbl{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.dmet-val{font-size:24px;font-weight:700;font-family:var(--mono);}
+.dmet.ok .dmet-val{color:var(--acc2);}
+.dmet.bad .dmet-val{color:var(--danger);}
+.dmet.warn .dmet-val{color:var(--warn);}
+.dash-sec-t{font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin:16px 0 10px;}
+.devia-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.devia-tbl th{background:var(--s2);color:var(--muted);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:7px 10px;text-align:left;border-bottom:1px solid var(--bdr);}
+.devia-tbl td{padding:6px 10px;border-bottom:1px solid var(--faint);}
+.devia-tbl tr:hover td{background:#ffffff05;}
+.dbadge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-family:var(--mono);}
+.dbadge.bad{background:#ff406018;color:var(--danger);border:1px solid #ff406040;}
+.dbadge.warn{background:#ffb34018;color:var(--warn);border:1px solid #ffb34040;}
+.dbadge.ok{background:#00e8aa18;color:var(--acc2);}
+.no-devia{text-align:center;padding:30px;color:var(--muted);font-family:var(--mono);font-size:13px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--s3);border:1px solid var(--acc2);border-radius:8px;padding:10px 16px;font-size:12px;font-family:var(--mono);color:var(--acc2);z-index:1000;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.err{border-color:var(--danger);color:var(--danger);}
+
+/* PRINT */
+@media print{
+  @page{size:A4 landscape;margin:10mm;}
+  .topbar,.mod-tabs,.slot-tabs,.sumbar,.nfc-ov,.dash-ov,.toast,.tb-acts{display:none!important;}
+  body,html{overflow:visible!important;}
+  .app{height:auto!important;overflow:visible!important;}
+  .main,.mod-panel,.tbl-wrap,.dcs-wrap{overflow:visible!important;height:auto!important;}
+  .tbl-wrap,.dcs-wrap{overflow:visible!important;}
+  body{background:#fff;color:#000;}
+  .log-tbl th{background:#d8e8f0!important;color:#333!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .area-hdr td{background:#e8f0f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .vinp{border:1px solid #aaa!important;background:#fff!important;color:#000!important;}
+  .vinp.bad{border:2px solid red!important;background:#fff0f0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .vmeta,.vlock{color:#666!important;}
+  .norm-c{color:#1a6a3a!important;}
+  .tag-c,.unit-c,.muted{color:#555!important;}
+  .desc-c{color:#000!important;}
+}
+@media(max-width:640px){
+  .op-nm,.tb-logo,.tb-info{display:none;}
+  .vcell{min-width:75px;}
+  .vinp{font-size:10px;}
+}
+
+/* ── RESPONSIVE — MOBILE & TABLET ── */
+@media (max-width: 900px) {
+  .topbar { padding: 8px 10px; }
+  .tb-info { display: none; }
+  .tb-acts { gap: 4px; }
+  .tbtn { padding: 5px 8px; font-size: 10px; }
+  .tbtn.send { padding: 5px 10px; }
+  .mod-tabs { padding: 0; }
+  .mtab { padding: 8px 10px; font-size: 10px; }
+  .slot-tabs { padding: 0; }
+  .stab { padding: 7px 9px; font-size: 10px; }
+  .sumbar { padding: 7px 10px; gap: 8px; }
+  .sumbar-acts { gap: 5px; }
+  .ssbtn { padding: 7px 12px; font-size: 11px; }
+}
+
+@media (max-width: 600px) {
+  .topbar { flex-wrap: nowrap; overflow-x: auto; }
+  .op-nm { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+  .op-av { width: 26px; height: 26px; font-size: 10px; }
+  .op-sh { display: none; }
+  .tbtn:not(.send):not(.nfc) { display: none; }
+  .tbtn.save-btn { display: none; }
+
+  .mtab { padding: 7px 8px; font-size: 10px; letter-spacing: 0; }
+  .mtab .mod-badge { display: none; }
+
+  .stab { padding: 6px 8px; font-size: 10px; }
+  .sbadge { display: none; }
+
+  /* Table scrollable horizontally */
+  .tbl-wrap, .dcs-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .log-tbl { min-width: 500px; }
+  .log-tbl th, .log-tbl td { padding: 4px 6px; }
+  .desc-c { min-width: 160px; font-size: 11px; }
+  .tag-c, .unit-c { font-size: 9px; }
+  .norm-c { font-size: 9px; }
+
+  .vcell { min-width: 72px; padding: 2px 3px; }
+  .vinp { font-size: 11px; padding: 4px 5px; min-width: 65px; }
+  .vmeta { font-size: 8px; }
+
+  /* DCS table compact */
+  .dcs-tbl { font-size: 10px; }
+  .dcs-tbl th { padding: 3px 4px; font-size: 8px; }
+  .dcs-inp { width: 48px; font-size: 10px; padding: 2px 3px; }
+  .hour-cell { font-size: 10px; padding: 2px 4px; }
+
+  /* Login card */
+  .lcard { padding: 28px 18px; border-radius: 12px; }
+  .ltit { font-size: 18px; }
+  .lsub { font-size: 12px; }
+  .fi, .fsel { font-size: 13px; padding: 9px 11px; }
+  .lbtn { padding: 11px; font-size: 13px; }
+
+  /* Sumbar */
+  .prog-bar { display: none; }
+  .prog-txt { font-size: 10px; }
+  .sumbar { gap: 6px; }
+  .ssbtn { padding: 6px 10px; font-size: 11px; }
+
+  /* Dashboard */
+  .dash-ov { padding: 10px; }
+  .dash-card { border-radius: 10px; }
+  .dash-hdr { padding: 12px 14px; }
+  .dash-body { padding: 14px; }
+  .dash-metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .dmet-val { font-size: 20px; }
+  .devia-tbl { font-size: 11px; }
+  .devia-tbl th, .devia-tbl td { padding: 5px 7px; }
+}
+
+/* Prevent iOS text size adjustment */
+html { -webkit-text-size-adjust: 100%; }
+/* Smooth touch scrolling */
+.tbl-wrap, .dcs-wrap, .mod-tabs, .slot-tabs { -webkit-overflow-scrolling: touch; }
+/* Touch-friendly inputs */
+@media (pointer: coarse) {
+  .vinp { min-height: 36px; padding: 6px 8px; }
+  .dcs-inp { min-height: 32px; }
+  .tbtn { min-height: 34px; padding: 6px 10px; }
+  .stab { min-height: 38px; padding: 9px 12px; }
+  .mtab { min-height: 38px; }
+  .cb-item input, .rb-item input { width: 16px; height: 16px; }
+  .lbtn { min-height: 48px; font-size: 15px; }
+  .fi, .fsel { min-height: 44px; font-size: 16px; } /* 16px prevents iOS zoom */
+}
+
+/* INSTALL BUTTON */
+#install-btn {
+  position: fixed; bottom: 80px; right: 16px;
+  background: var(--purple); color: #080d12;
+  border: none; border-radius: 12px;
+  padding: 12px 18px; font-family: var(--font); font-size: 13px; font-weight: 700;
+  cursor: pointer; display: none; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(167,139,250,0.4);
+  z-index: 500; transition: all .2s;
+}
+#install-btn:hover { opacity: .9; transform: translateY(-1px); }
+@media (max-width: 600px) {
+  #install-btn { bottom: 72px; right: 10px; font-size: 12px; padding: 10px 14px; }
+}
+
+/* LOGOUT */
+.tbtn.logout{border-color:#ff406060;color:#ff4060;}
+.tbtn.logout:hover{border-color:var(--danger);color:var(--danger);background:#ff406010;}
+.logout-confirm{position:fixed;inset:0;background:#000b;z-index:998;display:none;align-items:center;justify-content:center;}
+.logout-confirm.on{display:flex;}
+.logout-box{background:var(--s1);border:1px solid var(--bdr);border-radius:14px;padding:28px 24px;width:300px;text-align:center;}
+.logout-box-t{font-size:16px;font-weight:600;margin-bottom:8px;}
+.logout-box-s{font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:22px;}
+.logout-box-acts{display:flex;gap:10px;justify-content:center;}
+.logout-cancel{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:9px 20px;border-radius:7px;font-family:var(--font);font-size:13px;cursor:pointer;}
+.logout-cancel:hover{border-color:var(--bdr2);}
+.logout-ok{background:var(--danger);color:#fff;border:none;padding:9px 20px;border-radius:7px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;}
+.logout-ok:hover{opacity:.88;}
+</style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="login">
+  <div class="lcard">
+    <div class="llogorow">
+      <div class="llogoico">⚗</div>
+      <div>
+        <div class="llogotxt">SOCAR POLYMER</div>
+        <div class="llogosub">Field & DCS Log Sheet Platform</div>
+      </div>
+    </div>
+    <div class="ltit">Sistemə daxil olun</div>
+    <div class="lsub">Operator məlumatlarını daxil edin</div>
+    <div class="fg">
+      <label class="fl">Ad Soyad</label>
+      <input class="fi" id="l-name" type="text" placeholder="Adı Soyadı" />
+    </div>
+    <div class="fg">
+      <label class="fl">E-mail</label>
+      <input class="fi" id="l-email" type="email" placeholder="operator@socarpolymer.az" />
+    </div>
+    <div class="fg">
+      <label class="fl">Növbə</label>
+      <select class="fsel" id="l-shift">
+        <option value="day">Gündüz növbəsi (08:00–20:00)</option>
+        <option value="night">Gecə növbəsi (20:00–08:00)</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Tarix</label>
+      <input class="fi" id="l-date" type="date" />
+    </div>
+    <div id="login-err" style="display:none;color:var(--danger);font-size:12px;font-family:var(--mono);padding:8px 12px;background:#ff406015;border-radius:6px;margin-bottom:10px;border:1px solid #ff406040;"></div>
+    <button class="lbtn" onclick="doLogin()">Daxil ol →</button>
+    <button class="nfc-lb" onclick="nfcLogin()">📡 NFC kartla daxil ol</button>
+    <div id="lnfc"></div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">SOCAR<span>//</span>LOG</div>
+      <div class="tb-info" id="tb-dt"></div>
+    </div>
+    <div class="tb-op">
+      <div class="op-av" id="op-av">--</div>
+      <div>
+        <div class="op-nm" id="op-nm"></div>
+        <div class="op-sh" id="op-sh"></div>
+      </div>
+    </div>
+    <div class="tb-acts">
+      <button class="tbtn nfc" id="nfc-btn" onclick="startNFC()">📡 NFC</button>
+      <button class="tbtn" onclick="window.print()">🖨</button>
+      <button class="tbtn" onclick="saveAll()">💾 Saxla</button>
+      <button class="tbtn logout" onclick="confirmLogout()">⏻</button>
+      <button class="tbtn dash" onclick="showDashboard()">📊 Dashboard</button>
+      <button class="tbtn send" onclick="exportExcel()">📤 Excel Göndər</button>
+    </div>
+  </div>
+
+  <div class="mod-tabs" id="mod-tabs"></div>
+  <div class="slot-tabs" id="slot-tabs"></div>
+
+  <div class="main" id="main-panels"></div>
+
+  <div class="sumbar">
+    <div class="prog-txt" id="prog-txt">Yüklənir...</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="devia-badge" id="devia-badge" style="display:none" onclick="showDashboard()">⚠ Kənara çıxmalar var</div>
+    <div class="sumbar-acts">
+      <button class="ssbtn sec" onclick="showDashboard()">📊 Dashboard</button>
+      <button class="ssbtn pri" onclick="exportExcel()">📤 Excel Göndər</button>
+    </div>
+  </div>
+</div>
+
+<!-- NFC OVERLAY -->
+<div class="nfc-ov" id="nfc-ov">
+  <div class="nfc-mod">
+    <div class="nfc-ring">📡</div>
+    <div class="nfc-mod-t">NFC Tag oxuyun</div>
+    <div class="nfc-mod-s">Cihazı instrumentin yanındakı NFC tag-ə yaxınlaşdırın</div>
+    <div class="nfc-st" id="nfc-st"></div>
+    <button class="nfc-can" onclick="stopNFC()">Ləğv et</button>
+  </div>
+</div>
+
+<!-- DASHBOARD OVERLAY -->
+<div class="dash-ov" id="dash-ov">
+  <div class="dash-card">
+    <div class="dash-hdr">
+      <div class="dash-hdr-t">📊 Növbə Sonu Dashboard</div>
+      <button class="dash-close" onclick="closeDash()">✕ Bağla</button>
+    </div>
+    <div class="dash-body" id="dash-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// RANGE PARSER
+// ═══════════════════════════════════════════════════════
+function parseRange(s){
+  if(!s||!s.trim()) return null;
+  s=s.trim().replace(',','.');
+  // "min X" or "≥X"
+  if(/^min\s*([\d.]+)$/i.test(s)){const m=parseFloat(s.replace(/min\s*/i,''));return{lo:m,hi:Infinity};}
+  if(/^≥([\d.]+)$/.test(s)){return{lo:parseFloat(s.slice(1)),hi:Infinity};}
+  // "≤X" or "max X"
+  if(/^≤([\d.]+)$/.test(s)){return{lo:-Infinity,hi:parseFloat(s.slice(1))};}
+  if(/^max\s*([\d.]+)$/i.test(s)){return{lo:-Infinity,hi:parseFloat(s.replace(/max\s*/i,''))};}
+  // "X-Y"
+  const rangeM=s.match(/^([+-]?[\d.]+)\s*[-–]\s*([+-]?[\d.]+)$/);
+  if(rangeM) return{lo:parseFloat(rangeM[1]),hi:parseFloat(rangeM[2])};
+  // single value — only flag if norm is a nonzero positive number (±15% tolerance)
+  const sv=parseFloat(s);
+  if(!isNaN(sv) && sv>0) return{lo:sv*0.85,hi:sv*1.15};
+  // "0" or any ambiguous/text norm → no range check
+  return null;
+}
+function checkRange(val,range){
+  if(!range||!val||!val.trim()) return 'neutral';
+  const v=parseFloat(val.replace(',','.'));
+  if(isNaN(v)) return 'neutral';
+  if(v<range.lo||v>range.hi) return 'bad';
+  return 'ok';
+}
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let OP={name:'',email:'',shift:'day',date:'',initials:'--'};
+let activeModule='pp_field';
+let activeSlot='';
+let nfcReader=null;
+
+const MOD_DEFS=[
+  {id:'pp_field',  label:'PP Field',         icon:'⚗', color:'var(--acc)'},
+  {id:'utility',   label:'Utility Field',     icon:'🔧', color:'var(--acc2)'},
+  {id:'extruder',  label:'Extruder Field',    icon:'⚙', color:'var(--warn)'},
+  {id:'dcs',       label:'PP DCS',            icon:'🖥', color:'var(--purple)'},
+];
+
+function daySlots(mod){
+  if(mod==='extruder') return ['11:00','15:00','19:00'];
+  if(mod==='utility')  return ['14:00'];
+  return ['09:00','13:00','17:00'];
+}
+function nightSlots(mod){
+  if(mod==='extruder') return ['23:00','03:00','07:00'];
+  if(mod==='utility')  return ['02:00'];
+  return ['21:00','01:00','05:00'];
+}
+function curSlots(mod){ return OP.shift==='day'?daySlots(mod):nightSlots(mod); }
+
+// ── STORAGE ──
+function sk(mod,rowId,slot){ return `sp_${mod}_${OP.date}_${slot}_${rowId}`; }
+function getEntry(mod,rowId,slot){
+  try{return JSON.parse(localStorage.getItem(sk(mod,rowId,slot)))||null;}catch{return null;}
+}
+function setEntry(mod,rowId,slot,val,range){
+  const now=new Date();
+  const ts=now.toLocaleString('az-AZ',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const status=range?checkRange(val,range):'neutral';
+  const entry={val,by:OP.name,ts,status,date:OP.date};
+  localStorage.setItem(sk(mod,rowId,slot),JSON.stringify(entry));
+  return entry;
+}
+function isLocked(mod,rowId,slot){
+  const e=getEntry(mod,rowId,slot);
+  return e&&e.by&&e.by!==OP.name&&e.val;
+}
+
+// ── LOGIN ──
+document.getElementById('l-date').value=new Date().toISOString().split('T')[0];
+
+function doLogin(){
+  try {
+    const name=document.getElementById('l-name').value.trim();
+    const email=document.getElementById('l-email').value.trim();
+    const shift=document.getElementById('l-shift').value;
+    const date=document.getElementById('l-date').value;
+    if(!name){ showLoginError('Operator adını daxil edin'); return; }
+    if(!date){ showLoginError('Tarixi seçin'); return; }
+    OP={name,email,shift,date,initials:name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase()};
+    document.getElementById('login').style.display='none';
+    const appEl=document.getElementById('app');
+    appEl.style.display='flex';
+    appEl.style.flexDirection='column';
+    setTimeout(function(){ initApp(); }, 50);
+  } catch(e) {
+    showLoginError('Xəta: '+e.message);
+  }
+}
+function showLoginError(msg){
+  const el=document.getElementById('login-err');
+  if(el){ el.textContent=msg; el.style.display='block'; }
+  else { alert(msg); }
+}
+async function nfcLogin(){
+  const st=document.getElementById('lnfc');
+  if(!('NDEFReader' in window)){st.textContent='NFC dəstəklənmir';st.style.color='var(--danger)';return;}
+  st.textContent='NFC kartı yaxınlaşdırın...';st.style.color='var(--acc)';
+  try{
+    const r=new NDEFReader();await r.scan();
+    r.onreading=({message})=>{
+      for(const rec of message.records){
+        if(rec.recordType==='text'){
+          const txt=new TextDecoder(rec.encoding||'utf-8').decode(rec.data);
+          try{const d=JSON.parse(txt);if(d.name)document.getElementById('l-name').value=d.name;if(d.email)document.getElementById('l-email').value=d.email;if(d.shift)document.getElementById('l-shift').value=d.shift;}
+          catch{document.getElementById('l-name').value=txt;}
+          st.textContent='✓ NFC oxundu';st.style.color='var(--acc2)';break;
+        }
+      }
+    };
+  }catch(e){st.textContent='Xəta: '+e.message;st.style.color='var(--danger)';}
+}
+
+// ── INIT ──
+function initApp(){
+  try {
+    document.getElementById('op-av').textContent=OP.initials;
+    document.getElementById('op-nm').textContent=OP.name;
+    document.getElementById('op-sh').textContent=OP.shift==='day'?'Gündüz 08-20':'Gecə 20-08';
+    document.getElementById('tb-dt').textContent=OP.date;
+    buildModTabs();
+    switchModule('pp_field');
+  } catch(e) {
+    document.getElementById('app').style.display='none';
+    document.getElementById('login').style.display='flex';
+    showLoginError('App başlama xətası: '+e.message);
+  }
+}
+
+function buildModTabs(){
+  document.getElementById('mod-tabs').innerHTML=MOD_DEFS.map(m=>
+    `<div class="mtab${m.id===activeModule?' active':''}" id="mtab-${m.id}" onclick="switchModule('${m.id}')">${m.icon} ${m.label}</div>`
+  ).join('');
+}
+function buildSlotTabs(mod){
+  if(mod==='dcs'){document.getElementById('slot-tabs').innerHTML='<div class="stab active-all" style="border-bottom-color:var(--purple)">🕐 24 Saatlıq</div>';return;}
+  const sl=curSlots(mod);
+  const type=OP.shift;
+  document.getElementById('slot-tabs').innerHTML=sl.map(s=>{
+    const done=isSlotDone(mod,s);
+    const devia=hasDeviations(mod,s);
+    const isActive=s===activeSlot;
+    const unlocked=isSlotUnlocked(mod,s);
+    const isNight=nightSlots(mod).includes(s);
+    let cls=isActive?(isNight?'active-night':'active-'+type):'';
+    let badgeCls=done?'done':devia?'devia':(isNight?'night':type);
+    let badgeTxt=done?'✓':devia?'⚠':(!unlocked&&!isNight?'🔒':'');
+    let lockedStyle=(!unlocked&&!isNight)?'opacity:.45;cursor:not-allowed;':'';
+    let clickFn=(!unlocked&&!isNight)?`blockedSlot('${mod}','${s}')`:`setSlot('${mod}','${s}')`;
+    return `<div class="stab ${cls}" id="stab-${s.replace(':','')}" onclick="${clickFn}" style="${lockedStyle}">
+      ${s}
+      <span class="sbadge ${badgeCls}">${badgeTxt}</span>
+    </div>`;
+  }).join('');
+}
+function blockedSlot(mod, slot){
+  const dsl=daySlots(mod);
+  const idx=dsl.indexOf(slot);
+  if(idx>0){
+    const prev=dsl[idx-1];
+    toast('⚠ Əvvəlcə '+prev+' vaxtı doldurulmalıdır',true);
+  }
+}
+function isSlotDone(mod,slot){
+  const rows=getModRows(mod);
+  if(!rows||!rows.length) return false;
+  let total=0,filled=0;
+  rows.forEach((r,i)=>{
+    if(r.type==='area'||r.type==='section') return;
+    total++;
+    if(getEntry(mod,i,slot)?.val) filled++;
+  });
+  return total>0&&filled===total;
+}
+function hasDeviations(mod,slot){
+  const rows=getModRows(mod);
+  if(!rows) return false;
+  return rows.some((r,i)=>{
+    if(r.type==='area'||r.type==='section') return false;
+    const e=getEntry(mod,i,slot);
+    return e&&e.status==='bad';
+  });
+}
+
+// ── MODULE SWITCH ──
+function switchModule(mod){
+  activeModule=mod;
+  document.querySelectorAll('.mtab').forEach(t=>{t.classList.remove('active');});
+  const tab=document.getElementById('mtab-'+mod);
+  if(tab) tab.classList.add('active');
+  const sl=curSlots(mod);
+  activeSlot=detectCurSlot(mod)||sl[0];
+  buildSlotTabs(mod);
+  renderModule(mod);
+  updateProgress();
+}
+function detectCurSlot(mod){
+  const now=new Date();
+  const h=now.getHours()+now.getMinutes()/60;
+  const sl=curSlots(mod);
+  // find closest past slot
+  let best=sl[0];
+  sl.forEach(s=>{const sh=parseInt(s);if(sh<=h||(sh>20&&h<8)) best=s;});
+  return best;
+}
+function setSlot(mod,slot){
+  activeSlot=slot;
+  buildSlotTabs(mod);
+  refreshSlotHighlight(mod,slot);
+  updateProgress();
+}
+function isSlotUnlocked(mod, slot){
+  // Night shift slots are ALWAYS open
+  if(nightSlots(mod).includes(slot)) return true;
+  // Day shift: sequential — previous slot must have at least 1 filled value
+  const dsl = daySlots(mod);
+  const idx = dsl.indexOf(slot);
+  if(idx <= 0) return true; // first day slot always open
+  const prevSlot = dsl[idx - 1];
+  // Check if prevSlot has at least 1 entry filled
+  const rows = getModRows(mod);
+  let prevFilled = 0;
+  let di = 0;
+  rows.forEach((row,i) => {
+    if(row.type==='area'||row.type==='section') return;
+    const e = getEntry(mod, di, prevSlot);
+    if(e && e.val) prevFilled++;
+    di++;
+  });
+  return prevFilled > 0;
+}
+
+function refreshSlotHighlight(mod, slot){
+  if(mod==='dcs') return;
+  const allSlots = [...daySlots(mod), ...nightSlots(mod)];
+  allSlots.forEach(s => {
+    const skey = s.replace(':','');
+    const isActive = (s === slot);
+    const unlocked = isSlotUnlocked(mod, s);
+    document.querySelectorAll('.th-'+skey).forEach(th => th.classList.toggle('active-col', isActive));
+    // vcell: inactive only if locked (not yet unlocked) AND not active
+    document.querySelectorAll('.vcell-'+skey).forEach(c => {
+      c.classList.toggle('inactive', !unlocked && !isActive);
+    });
+    document.querySelectorAll('.vinp-'+skey).forEach(inp => {
+      if(!inp.classList.contains('locked-inp')) {
+        inp.disabled = !unlocked;
+      }
+    });
+  });
+}
+
+// ── RENDER ──
+function renderModule(mod){
+  try {
+    const panels=document.getElementById('main-panels');
+    panels.innerHTML='';
+    const div=document.createElement('div');
+    div.className='mod-panel active';
+    div.id='panel-'+mod;
+    if(mod==='dcs'){
+      div.innerHTML='<div class="dcs-wrap">'+buildDCSTbl()+'</div>';
+    } else {
+      div.innerHTML='<div class="tbl-wrap">'+buildListTbl(mod)+'</div>';
+    }
+    panels.appendChild(div);
+    if(mod!=='dcs') refreshSlotHighlight(mod,activeSlot);
+  } catch(e) {
+    document.getElementById('main-panels').innerHTML='<div style="padding:30px;color:var(--danger);font-family:var(--mono);font-size:12px;">Render xətası: '+e.message+'</div>';
+  }
+}
+
+// ── LIST TABLE (PP Field, Utility, Extruder) ──
+function buildListTbl(mod){
+  const rows=getModRows(mod);
+  const allSlots=[...daySlots(mod),...nightSlots(mod)];
+  const sl=curSlots(mod);
+  const typ=OP.shift;
+
+  let html='<table class="log-tbl"><thead><tr>';
+  html+='<th class="lth" style="min-width:220px">Təsvir</th>';
+  html+='<th>Tag №</th><th>Vahid</th><th>Normal</th>';
+  allSlots.forEach(s=>{
+    const isDay=daySlots(mod).includes(s);
+    const unlocked=isSlotUnlocked(mod,s);
+    const isActive=(s===activeSlot);
+    const lockedStyle=(!unlocked&&isDay)?'opacity:.5;':'';
+    const lockedIcon=(!unlocked&&isDay)?'🔒 ':'';
+    const cls='th-'+s.replace(':','')+(!isDay?' night-col':'')+(isActive?' active-col':'');
+    html+='<th class="'+cls+'" style="background:'+(isDay?'#ffb34010':'#7b8ede10')+';color:'+(isDay?'var(--day)':'var(--night)')+';'+lockedStyle+'">'+lockedIcon+s+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+
+  let dataIdx=0;
+  rows.forEach((row,i)=>{
+    if(row.type==='area'){
+      html+=`<tr class="area-hdr"><td colspan="${4+allSlots.length}" style="border-left:3px solid var(--acc)">${row.label}</td></tr>`;
+      return;
+    }
+    const ri=dataIdx++;
+    const tagAttr=row.tag?`data-tag="${row.tag}"`:'';
+    const trId=row.tag?`id="tr-${row.tag.replace(/[\s\/\(\)\\]/g,'_')}"` :'';
+    const range=parseRange(row.norm);
+    html+=`<tr ${trId} ${tagAttr}>`;
+    html+=`<td class="desc-c">${row.desc}</td>`;
+    html+=`<td class="tag-c">${row.tag||''}</td>`;
+    html+=`<td class="unit-c">${row.unit||''}</td>`;
+    html+=`<td class="norm-c">${row.norm||''}</td>`;
+
+    allSlots.forEach(s=>{
+      const skey=s.replace(':','');
+      const isActive=s===activeSlot;
+      const entry=getEntry(mod,ri,s);
+      const locked=entry&&entry.by&&entry.by!==OP.name&&entry.val;
+      const val=entry?.val||'';
+      const meta=(entry&&entry.val&&entry.by)?(entry.by+' · '+entry.ts):'';
+      const status=entry?.status||'neutral';
+      const inpCls=[
+        'vinp',`vinp-${skey}`,
+        val?status:'',
+        locked?'locked':'',
+        locked?'locked-inp':''
+      ].filter(Boolean).join(' ');
+
+      if(row.type==='check'){
+        const opts=row.options||[];
+        const saved=entry?.val||'';
+        const savedArr=saved?saved.split(','):[];
+        const sOpen=isSlotUnlocked(mod,s); html+=`<td class="vcell vcell-${skey}${sOpen?'':' inactive'}">`;
+        html+=`<div class="cb-grp">`;
+        opts.forEach(o=>{
+          const chk=savedArr.includes(o)?'checked':'';
+          const cbSlotOpen=isSlotUnlocked(mod,s); const dis=locked||!cbSlotOpen?'disabled':'';
+          html+=`<label class="cb-item"><input type="checkbox" ${chk} ${dis} onchange="onCheck('${mod}',${ri},'${s}','${o}',this)" /> ${o}</label>`;
+        });
+        html+='</div>';
+        html+=`<div class="vmeta${locked?' locked-meta':''}" id="meta-${mod}-${ri}-${skey}">${locked?'🔒 ':''}${meta}</div>`;
+        html+='</td>';
+      } else if(row.type==='radio'||row.type==='openclose'){
+        const opts=row.type==='openclose'?['Open','Close']:(row.options||[]);
+        const sOpen=isSlotUnlocked(mod,s); html+=`<td class="vcell vcell-${skey}${sOpen?'':' inactive'}">`;
+        html+=`<div class="rb-grp">`;
+        opts.forEach(o=>{
+          const chk=val===o?'checked':'';
+          const cbSlotOpen=isSlotUnlocked(mod,s); const dis=locked||!cbSlotOpen?'disabled':'';
+          html+=`<label class="rb-item"><input type="radio" name="rb-${mod}-${ri}-${skey}" value="${o}" ${chk} ${dis} onchange="onRadio('${mod}',${ri},'${s}','${o}')" /> ${o}</label>`;
+        });
+        html+='</div>';
+        html+=`<div class="vmeta${locked?' locked-meta':''}" id="meta-rb-${mod}-${ri}-${skey}">${locked?'🔒 ':''}${meta}</div>`;
+        html+='</td>';
+      } else {
+        const slotOpen=isSlotUnlocked(mod,s); const disAttr=(!slotOpen||locked)?'disabled':'';
+        const sOpen=isSlotUnlocked(mod,s); html+=`<td class="vcell vcell-${skey}${sOpen?'':' inactive'}">`;
+        html+=`<input class="${inpCls}" id="inp-${mod}-${ri}-${skey}" type="text" value="${val}" placeholder="—" ${disAttr} data-range='${JSON.stringify(range)}' onchange="onInput('${mod}',${ri},'${s}',this)" onfocus="this.select()" />`;
+        html+=`<div class="vmeta${locked?' locked-meta':''}" id="meta-${mod}-${ri}-${skey}">${locked?'🔒 ':''}${meta}</div>`;
+        html+='</td>';
+      }
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
+// ── INPUT HANDLERS ──
+function onInput(mod,ri,slot,el){
+  // LOCK: if entry exists by another user, revert and warn
+  const existing=getEntry(mod,ri,slot);
+  if(existing&&existing.val&&existing.by&&existing.by!==OP.name){
+    el.value=existing.val;
+    toast('🔒 Bu dəyər '+existing.by+' tərəfindən daxil edilib — dəyişdirilə bilməz',true);
+    return;
+  }
+  const val=el.value.trim();
+  const range=el.dataset.range?JSON.parse(el.dataset.range):null;
+  if(val){
+    const entry=setEntry(mod,ri,slot,val,range);
+    el.classList.remove('ok','bad');
+    el.classList.add(entry.status==='bad'?'bad':entry.status==='ok'?'ok':'');
+    const skey2=slot.replace(':','');
+    const metaEl=document.getElementById('meta-'+mod+'-'+ri+'-'+skey2)||el.nextElementSibling;
+    if(metaEl) metaEl.textContent=entry.by+' · '+entry.ts;
+  } else {
+    localStorage.removeItem(sk(mod,ri,slot));
+    el.classList.remove('ok','bad');
+    const skey3=slot.replace(':','');
+    const metaElC=document.getElementById('meta-'+mod+'-'+ri+'-'+skey3)||el.nextElementSibling;
+    if(metaElC) metaElC.textContent='';
+  }
+  updateProgress();
+  buildSlotTabs(mod);
+  refreshSlotHighlight(mod, activeSlot);
+}
+function onCheck(mod,ri,slot,opt,el){
+  const existing=getEntry(mod,ri,slot);
+  if(existing&&existing.val&&existing.by&&existing.by!==OP.name){
+    el.checked=!el.checked; // revert
+    toast('🔒 '+existing.by+' tərəfindən daxil edilib — dəyişdirilə bilməz',true);
+    return;
+  }
+  const arr=existing?.val?existing.val.split(',').filter(Boolean):[];
+  const updated=el.checked?[...arr.filter(v=>v!==opt),opt]:arr.filter(v=>v!==opt);
+  const val=updated.join(',');
+  if(val) setEntry(mod,ri,slot,val,null); else localStorage.removeItem(sk(mod,ri,slot));
+  const cell=el.closest('.vcell');
+  const metaEl=cell?.querySelector('.vmeta');
+  if(metaEl){const e=getEntry(mod,ri,slot);metaEl.textContent=e?(e.by+' · '+e.ts):'';}
+  updateProgress();
+}
+function onRadio(mod,ri,slot,opt){
+  const existing=getEntry(mod,ri,slot);
+  if(existing&&existing.val&&existing.by&&existing.by!==OP.name){
+    // revert radio
+    const grp=document.querySelectorAll(`input[name="rb-${mod}-${ri}-${slot.replace(':','')}"]`);
+    grp.forEach(r=>{r.checked=(r.value===existing.val);});
+    toast('🔒 '+existing.by+' tərəfindən daxil edilib — dəyişdirilə bilməz',true);
+    return;
+  }
+  setEntry(mod,ri,slot,opt,null);
+  const skeyRb=slot.replace(':','');
+  const metaElRb=document.getElementById('meta-rb-'+mod+'-'+ri+'-'+skeyRb)||document.getElementById('meta-'+mod+'-'+ri+'-'+skeyRb);
+  if(metaElRb){const e=getEntry(mod,ri,slot);metaElRb.textContent=e&&e.val?(e.by+' · '+e.ts):'';}
+  updateProgress();
+  buildSlotTabs(mod);
+}
+
+// ── PROGRESS ──
+function updateProgress(){
+  const mod=activeModule;
+  const rows=getModRows(mod);
+  if(!rows){document.getElementById('prog-txt').textContent='';return;}
+  const sl=mod==='dcs'?getDCSHours():curSlots(mod);
+  let total=0,filled=0,devia=0;
+  rows.forEach((row,i)=>{
+    if(row.type==='area'||row.type==='section') return;
+    sl.forEach(s=>{
+      total++;
+      const e=getEntry(mod,i,s);
+      if(e?.val){filled++;if(e.status==='bad')devia++;}
+    });
+  });
+  const pct=total?Math.round(filled/total*100):0;
+  document.getElementById('prog-txt').textContent=`${filled}/${total} dəyər (${pct}%)`;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  const db=document.getElementById('devia-badge');
+  if(devia>0){db.style.display='';db.textContent=`⚠ ${devia} kənara çıxma`;}
+  else{db.style.display='none';}
+}
+
+// ── SAVE ──
+function saveAll(){ toast('Məlumatlar saxlanıldı ✓'); }
+
+// ── NFC ──
+async function startNFC(){
+  if(!('NDEFReader' in window)){toast('NFC dəstəklənmir',true);return;}
+  document.getElementById('nfc-ov').classList.add('on');
+  document.getElementById('nfc-btn').classList.add('scanning');
+  document.getElementById('nfc-st').textContent='';
+  try{
+    nfcReader=new NDEFReader(); await nfcReader.scan();
+    nfcReader.onreading=({message,serialNumber})=>{
+      let tagId=serialNumber||'';
+      for(const rec of message.records){
+        if(rec.recordType==='text'){tagId=new TextDecoder(rec.encoding||'utf-8').decode(rec.data).trim();break;}
+      }
+      document.getElementById('nfc-st').textContent='Oxundu: '+tagId;
+      const clean=tagId.replace(/[\s\/\(\)\\]/g,'_');
+      const tr=document.getElementById('tr-'+clean)||document.querySelector(`tr[data-tag="${tagId}"]`);
+      if(tr){
+        tr.scrollIntoView({behavior:'smooth',block:'center'});
+        tr.style.outline='2px solid var(--acc)';
+        setTimeout(()=>tr.style.outline='',2000);
+        const skey=activeSlot.replace(':','');
+        const inp=tr.querySelector(`.vinp-${skey}:not(:disabled):not(.locked-inp)`);
+        if(inp){inp.focus();inp.select();}
+        document.getElementById('nfc-st').textContent='✓ '+tagId;
+        setTimeout(stopNFC,1000);
+      } else { document.getElementById('nfc-st').textContent='Tapılmadı: '+tagId; }
+    };
+  }catch(e){document.getElementById('nfc-st').textContent='Xəta: '+e.message;toast('NFC xəta: '+e.message,true);}
+}
+function stopNFC(){
+  document.getElementById('nfc-ov').classList.remove('on');
+  document.getElementById('nfc-btn').classList.remove('scanning');
+  if(nfcReader){try{nfcReader.stop&&nfcReader.stop();}catch{}nfcReader=null;}
+}
+
+// ── DASHBOARD ──
+function showDashboard(){
+  const body=document.getElementById('dash-body');
+  let allDevia=[],totalFilled=0,totalCells=0;
+  MOD_DEFS.forEach(m=>{
+    const rows=getModRows(m.id);
+    if(!rows) return;
+    const sl=m.id==='dcs'?getDCSHours():[...daySlots(m.id),...nightSlots(m.id)];
+    rows.forEach((row,i)=>{
+      if(row.type==='area'||row.type==='section') return;
+      sl.forEach(s=>{
+        totalCells++;
+        const e=getEntry(m.id,i,s);
+        if(e?.val){
+          totalFilled++;
+          if(e.status==='bad'){
+            allDevia.push({mod:m.label,tag:row.tag||'',desc:row.desc||'',slot:s,val:e.val,norm:row.norm||'',by:e.by});
+          }
+        }
+      });
+    });
+  });
+  const pct=totalCells?Math.round(totalFilled/totalCells*100):0;
+  let html=`<div class="dash-metrics">
+    <div class="dmet ${pct>=80?'ok':'warn'}"><div class="dmet-lbl">Tamamlanma</div><div class="dmet-val">${pct}%</div></div>
+    <div class="dmet ${allDevia.length?'bad':'ok'}"><div class="dmet-lbl">Kənara çıxma</div><div class="dmet-val">${allDevia.length}</div></div>
+    <div class="dmet ok"><div class="dmet-lbl">Doldurulmuş</div><div class="dmet-val">${totalFilled}</div></div>
+    <div class="dmet"><div class="dmet-lbl">Ümumi sahə</div><div class="dmet-val">${totalCells}</div></div>
+  </div>`;
+  if(allDevia.length){
+    html+=`<div class="dash-sec-t">⚠ Normal dəyərdən kənara çıxmalar</div>
+    <table class="devia-tbl"><thead><tr><th>Modul</th><th>Tag №</th><th>Təsvir</th><th>Vaxt</th><th>Dəyər</th><th>Normal</th><th>Operator</th></tr></thead><tbody>`;
+    allDevia.forEach(d=>{
+      html+=`<tr><td>${d.mod}</td><td><span class="dbadge ok">${d.tag}</span></td><td style="font-size:11px">${d.desc}</td><td style="font-family:var(--mono);font-size:11px">${d.slot}</td>
+      <td><span class="dbadge bad">${d.val}</span></td><td style="font-family:var(--mono);font-size:11px;color:var(--acc2)">${d.norm}</td>
+      <td style="font-size:11px;color:var(--muted)">${d.by}</td></tr>`;
+    });
+    html+='</tbody></table>';
+  } else {
+    html+=`<div class="no-devia">✅ Bütün parametrlər normal dəyər daxilindədir</div>`;
+  }
+  body.innerHTML=html;
+  document.getElementById('dash-ov').classList.add('on');
+}
+function closeDash(){ document.getElementById('dash-ov').classList.remove('on'); }
+
+// ── EXCEL EXPORT ──
+function exportExcel(){
+  const wb=XLSX.utils.book_new();
+  MOD_DEFS.forEach(m=>{
+    const rows=getModRows(m.id);
+    if(!rows||!rows.length) return;
+    const sl=m.id==='dcs'?getDCSHours():[...daySlots(m.id),...nightSlots(m.id)];
+    const aoa=[];
+    // Header
+    aoa.push([`${m.label} — Log Sheet`,'','','',`Tarix: ${OP.date}`,'',`Operator: ${OP.name}`,'',`Növbə: ${OP.shift==='day'?'Gündüz 08-20':'Gecə 20-08'}`,'']);
+    aoa.push(['Təsvir','Tag №','Vahid','Normal',...sl]);
+
+    let di=0;
+    rows.forEach((row,i)=>{
+      if(row.type==='area'){aoa.push([`── ${row.label} ──`]);return;}
+      const ri=di++;
+      const vals=sl.map(s=>{const e=getEntry(m.id,ri,s);return e?.val||'';});
+      aoa.push([row.desc,row.tag||'',row.unit||'',row.norm||'',...vals]);
+      // Operator stamps
+      const metas=sl.map(s=>{const e=getEntry(m.id,ri,s);return e?.val?`${e.by} ${e.ts}`:''});
+      if(metas.some(Boolean)) aoa.push(['  → Operator','','','',...metas]);
+      // Out-of-range flag
+      const bads=sl.map(s=>{const e=getEntry(m.id,ri,s);return e?.status==='bad'?'⚠ KƏNAR':''});
+      if(bads.some(Boolean)) aoa.push(['  ⚠ Status','','','',...bads]);
+    });
+
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols']=[{wch:45},{wch:14},{wch:8},{wch:12},...sl.map(()=>({wch:12}))];
+    XLSX.utils.book_append_sheet(wb,ws,m.label.slice(0,31));
+  });
+
+  // Dashboard sheet
+  const dashData=[['SOCAR Polymer — Növbə Sonu Hesabatı'],['Tarix:',OP.date,'Operator:',OP.name,'Növbə:',OP.shift==='day'?'Gündüz':'Gecə'],[''],
+    ['Modul','Tag №','Təsvir','Vaxt','Dəyər','Normal dəyər','Status','Operator']];
+  let hasAny=false;
+  MOD_DEFS.forEach(m=>{
+    const rows=getModRows(m.id);
+    if(!rows) return;
+    const sl=m.id==='dcs'?getDCSHours():[...daySlots(m.id),...nightSlots(m.id)];
+    rows.forEach((row,i)=>{
+      if(row.type==='area') return;
+      sl.forEach(s=>{
+        const e=getEntry(m.id,i,s);
+        if(e?.val&&e.status==='bad'){
+          dashData.push([m.label,row.tag||'',row.desc||'',s,e.val,row.norm||'','⚠ KƏNAR',e.by]);
+          hasAny=true;
+        }
+      });
+    });
+  });
+  if(!hasAny) dashData.push(['','','','','','','Kənara çıxma yoxdur ✅','']);
+  const dws=XLSX.utils.aoa_to_sheet(dashData);
+  XLSX.utils.book_append_sheet(wb,dws,'Dashboard');
+
+  const bin=XLSX.write(wb,{bookType:'xlsx',type:'base64'});
+  const blob=b64Blob(bin,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`LogSheet_${OP.date}_${OP.shift}_${OP.name.replace(/\s+/g,'_')}.xlsx`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+
+  if(OP.email){
+    const subj=`Log Sheet — ${OP.date} — ${OP.shift==='day'?'Gündüz':'Gecə'} — ${OP.name}`;
+    let body=`SOCAR Polymer Log Sheet Hesabatı\n${'═'.repeat(40)}\nTarix: ${OP.date}\nNövbə: ${OP.shift==='day'?'Gündüz 08:00–20:00':'Gecə 20:00–08:00'}\nOperator: ${OP.name}\n\nExcel faylı yüklənib — e-mail-ə əl ilə əlavə edin.\n\nKənara çıxmalar:\n`;
+    MOD_DEFS.forEach(m=>{
+      const rows=getModRows(m.id);if(!rows)return;
+      const sl=m.id==='dcs'?getDCSHours():[...daySlots(m.id),...nightSlots(m.id)];
+      rows.forEach((row,i)=>{if(row.type==='area')return;sl.forEach(s=>{const e=getEntry(m.id,i,s);if(e?.val&&e.status==='bad')body+=`  [${s}] ${row.tag||''} ${row.desc}: ${e.val} (normal: ${row.norm})\n`;});});
+    });
+    window.open(`mailto:${OP.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`,'_blank');
+  }
+  toast('Excel yükləndi!');
+}
+function b64Blob(b64,type){
+  const bin=atob(b64);const arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type});
+}
+
+// ── TOAST ──
+function toast(msg,isErr=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(isErr?' err':'');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',3500);
+}
+
+// Enter key navigation
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&(e.target.classList.contains('vinp')||e.target.classList.contains('dcs-inp'))){
+    const cls=activeModule==='dcs'?'.dcs-inp':`.vinp-${activeSlot.replace(':','')}:not(:disabled):not(.locked-inp)`;
+    const all=[...document.querySelectorAll(cls)];
+    const i=all.indexOf(e.target);if(i>=0&&i<all.length-1)all[i+1].focus();
+  }
+});
+</script>
+
+<script>
+// ════════════════════════════════════════════════
+// MODULE DATA — PP FIELD
+// ════════════════════════════════════════════════
+const PP_FIELD_ROWS=[
+  {type:'area',label:'Area 2100 — Catalyst & Donor System'},
+  {desc:'Outlet pressure of Teal pump (P-2101 A) if running',tag:'PI-21061',unit:'barg',norm:'45-46'},
+  {desc:'Outlet pressure of Teal pump (P-2101 B) if running',tag:'PI-21062',unit:'barg',norm:'45-46'},
+  {desc:'Level of flushing oil drum (D-2104)',tag:'LI-21064',unit:'mm',norm:'430-450'},
+  {desc:'Level of exhaust oil drum (D-2102)',tag:'LI-21062',unit:'mm',norm:'0-550'},
+  {desc:'Level of teal seal drum (D-2103)',tag:'LI-21063',unit:'mm',norm:'300-320'},
+  {desc:'Outlet pressure of Donor pump (P-2104 A) if running',tag:'PI-21073',unit:'barg',norm:'49-50'},
+  {desc:'Outlet pressure of Donor pump (P-2104 B) if running',tag:'PI-21074',unit:'barg',norm:'49-50'},
+  {desc:'Level of Donor storage drum (D-2110 A)',tag:'LI-21071',unit:'mm',norm:'450-850'},
+  {desc:'Level of Donor storage drum (D-2110 B)',tag:'LI-21072',unit:'mm',norm:'450-850'},
+  {desc:'F-2106 pressuriz. oil filter diff. pres.',tag:'PDI-21002',unit:'barg',norm:''},
+  {desc:'F-2107 metering oil filter diff. pres.',tag:'PDI-21001',unit:'barg',norm:''},
+  {desc:'D-2107 level',tag:'LI-21092',unit:'mm',norm:''},
+  {desc:'Grease Melter Temperature (E-2102)',tag:'TI-21021',unit:'°C',norm:'60-100'},
+  {desc:'D-2113 seal oil pot level (DA-2106)',tag:'LI-21082',unit:'',norm:''},
+  {desc:'D-2120 grease drum pressure',tag:'PT-21020',unit:'barg',norm:'0.05'},
+  {desc:'D-2102/D-2103/D-2104 pressure',tag:'PI-21065',unit:'barg',norm:'0.1'},
+  {desc:'D-2105 mineral oil drum pressure',tag:'PI-21076',unit:'barg',norm:'0.1'},
+  {type:'area',label:'Area 2200 — Prepolymerization & Loop Reactor'},
+  {desc:'Oil Pressure to Precontacting Pot',tag:'PI-22056',unit:'barg',norm:'40-65'},
+  {desc:'Precontacting Pot Pressure',tag:'PI-22053',unit:'barg',norm:'37-39'},
+  {desc:'Seal pressure of prepoly pump P-2200',tag:'PI-22593',unit:'barg',norm:'41-42'},
+  {desc:'Outlet pressure of prepoly jacket circ. pump',tag:'PI-22064',unit:'barg',norm:'4.5-4.6'},
+  {desc:'C3 Pressure to bottom of piston (Z-2200)',tag:'PI-22098',unit:'barg',norm:'38-39'},
+  {desc:'Level of Surge Drum (LI-22061 A)',tag:'LI-22061A',unit:'mm',norm:'0-300'},
+  {desc:'Level of Surge Drum (LI-22061 B)',tag:'LI-22061B',unit:'mm',norm:'2000-2500'},
+  {desc:'Surge Drum Pressure (top)',tag:'PI-22060',unit:'barg',norm:''},
+  {desc:'Surge Drum Pressure (bottom)',tag:'PI-22063',unit:'barg',norm:''},
+  {desc:'F-2202 A/B differential pressure',tag:'PDI-22054',unit:'barg',norm:''},
+  {desc:'F-2205 A/B differential pressure',tag:'PDI-22066',unit:'barg',norm:''},
+  {desc:'F-2206 A/B differential pressure',tag:'PDI-22067',unit:'barg',norm:''},
+  {desc:'F-2203 differential pressure',tag:'PDI-22070',unit:'barg',norm:''},
+  {desc:'Seal Pressure of P-2201',tag:'PI-22089',unit:'barg',norm:'42-43'},
+  {desc:'Safety seal pot Z-2207 level (P-2201)',tag:'LI-22721',unit:'%',norm:'50-65'},
+  {desc:'Flushing pressure to 1st loop reactor pump',tag:'PI-22071',unit:'barg',norm:'35-36'},
+  {desc:'Seal Pressure of P-2202',tag:'PI-22595',unit:'barg',norm:'43-44'},
+  {desc:'Safety seal pot Z-2208 level (P-2202)',tag:'LI-22741',unit:'%',norm:'50-65'},
+  {desc:'Flushing pressure to 2nd loop reactor pump',tag:'PI-22073',unit:'barg',norm:'39-40'},
+  {desc:'Level of Atmer Drum',tag:'LI-22098',unit:'mm',norm:'350-480'},
+  {desc:'Atmer Drum Temperature',tag:'TI-22041',unit:'°C',norm:'72-75'},
+  {desc:'Blanket pressure of drum',tag:'PI-22077',unit:'barg',norm:'0.08'},
+  {desc:'Discharge Pressure of P-2208 A if running',tag:'PI-22075',unit:'barg',norm:'21-24'},
+  {desc:'Discharge Pressure of P-2208 B if running',tag:'PI-22076',unit:'barg',norm:'21-24'},
+  {desc:'CO (2%) bottles pressure — PI-22081',tag:'PI-22081',unit:'psi',norm:'100-150'},
+  {desc:'CO (2%) bottles pressure — PI-22082',tag:'PI-22082',unit:'psi',norm:'100-150'},
+  {desc:'1st loop jacket water pump pressure (P-2205)',tag:'PI-22083',unit:'barg',norm:'3.4-3.6'},
+  {desc:'2nd loop jacket water pump pressure (P-2206)',tag:'PI-22084',unit:'barg',norm:'3.4-3.6'},
+  {desc:'Inl.pres 2nd loop jacket water pump (P-2206)',tag:'PI-22099',unit:'barg',norm:'2.4-2.5'},
+  {desc:'Discharge Pressure of P-2207 A if running',tag:'PI-22085',unit:'barg',norm:'5.8-6'},
+  {desc:'Discharge Pressure of P-2207 B if running',tag:'PI-22086',unit:'barg',norm:'5.8-6'},
+  {desc:'Discharge Pressure of P-2207 C if running',tag:'PI-22087',unit:'barg',norm:'5.8-6'},
+  {type:'area',label:'Area 2300 — Flash & Scrubbing System'},
+  {desc:"Seal Pres. of Flash drum's Agitator (Z-2301)",tag:'PI-23097',unit:'barg',norm:'21-23'},
+  {desc:'C3 Pressure to bottom of piston (Z-2300)',tag:'PI-23051',unit:'barg',norm:'18-19'},
+  {desc:'Reflux pump discharge pressure P-2302 A if running',tag:'PI-23063A',unit:'barg',norm:'23-25'},
+  {desc:'Reflux pump discharge pressure P-2302 B if running',tag:'PI-23063B',unit:'barg',norm:'23-25'},
+  {desc:'Blow back gas drum pressure (D-2302)',tag:'PI-23056',unit:'barg',norm:'4.0-5.0'},
+  {desc:'Propylene flow from T-2301 to F-2301',tag:'PI-23065',unit:'barg',norm:'min 1.8'},
+  {desc:'Propylene flow to bag filter',tag:'FI-23004',unit:'kg/h',norm:'0.6-0.7'},
+  {desc:'Waste oil drum level',tag:'LI-23098',unit:'mm',norm:'0-1900'},
+  {desc:'Out. Pres of scrubbing oil pump (P-2304 A) if running',tag:'PI-23076A',unit:'barg',norm:'2.8-3'},
+  {desc:'Out. Pres of scrubbing oil pump (P-2304 B) if running',tag:'PI-23076B',unit:'barg',norm:'2.8-3'},
+  {desc:'Inlet temperature of scrubbing oil pump (P-2304 A)',tag:'TI-23081',unit:'°C',norm:'40-60'},
+  {desc:'Inlet temperature of scrubbing oil pump (P-2304 B)',tag:'TI-23083',unit:'°C',norm:'40-60'},
+  {desc:'Level of LP scrubber T-2302 A',tag:'LI-23077',unit:'mm',norm:'400-600'},
+  {desc:'Level of LP scrubber T-2302B',tag:'LI-23084',unit:'mm',norm:'400-600'},
+  {desc:'Level of K.O drum D-2311 A',tag:'LI-23505',unit:'mm',norm:'0-150'},
+  {desc:'Level of K.O drum D-2311 B',tag:'LI-23555',unit:'mm',norm:'0-150'},
+  {desc:'Level of Z-2301 (seal pressurization piston)',tag:'LI-23097',unit:'mm',norm:'0-300'},
+  {desc:'N2 flow outboard 1st stage C-2301 A',tag:'FI-23502',unit:'kg/h',norm:'0.5-2'},
+  {desc:'N2 flow inboard 1st stage C-2301 A',tag:'FI-23503',unit:'kg/h',norm:'0-0.2'},
+  {desc:'N2 flow outboard 2nd stage C-2301 A',tag:'FI-23505',unit:'kg/h',norm:'0.5-2'},
+  {desc:'N2 flow inboard 2nd stage C-2301 A',tag:'FI-23506',unit:'kg/h',norm:'0-0.2'},
+  {desc:'N2 flow outboard 1st stage C-2301 B',tag:'FI-23552',unit:'Nm³/h',norm:'0.5-2'},
+  {desc:'N2 flow inboard 1st stage C-2301 B',tag:'FI-23553',unit:'Nm³/h',norm:'0-0.2'},
+  {desc:'N2 flow outboard 2nd stage C-2301 B',tag:'FI-23555',unit:'Nm³/h',norm:'0.5-2'},
+  {desc:'N2 flow inboard 2nd stage C-2301 B',tag:'FI-23556',unit:'Nm³/h',norm:'0-0.2'},
+  {type:'area',label:'Area 2400 — Ethylene Compressor'},
+  {desc:'P-2401 A outlet pressure if running',tag:'PI-24514',unit:'barg',norm:'6-9'},
+  {desc:'P-2401 B outlet pressure if running',tag:'PI-24515',unit:'barg',norm:'6-9'},
+  {desc:'Primary seal gas pressure',tag:'PI-24511',unit:'barg',norm:''},
+  {desc:'Buffer gas N2 pressure',tag:'PI-24512',unit:'barg',norm:'0.5-1'},
+  {desc:'Primary seal gas temperature',tag:'TI-24508',unit:'°C',norm:''},
+  {desc:'Primary seal gas temperature',tag:'TI-24509',unit:'°C',norm:''},
+  {desc:'IGV inlet purge line pressure',tag:'PI-24513',unit:'barg',norm:''},
+  {desc:'TK-2402 rundown tank level',tag:'LI-24504',unit:'mm',norm:''},
+  {desc:'F-2401 ethylene guard filter diff. pres.',tag:'PDI-24006',unit:'barg',norm:''},
+  {type:'area',label:'Area 2500 — Steamer & Dryer'},
+  {desc:'Inlet pressure of steamer scrubber T-2501',tag:'PI-25053',unit:'barg',norm:'0.25-0.37'},
+  {desc:'Outlet Pres. of steamer scrubber pump P-2501 A',tag:'PI-25054',unit:'barg',norm:'3-3.8'},
+  {desc:'Out. Pres of steamer scrubber pump P-2501 B',tag:'PI-25055',unit:'barg',norm:'3-3.8'},
+  {desc:'Flow of steamer scrubber pump P-2501 A/B',tag:'FI-25003',unit:'t/h',norm:'55-60'},
+  {desc:'Seal water return line of P-2501 A',tag:'TI-25703',unit:'°C',norm:'50-60'},
+  {desc:'Seal water return line of P-2501 B',tag:'TI-25704',unit:'°C',norm:'50-60'},
+  {desc:'Out. Pres of dryer scrubber pump P-2502 A',tag:'PI-25066A',unit:'barg',norm:'1.6-1.8'},
+  {desc:'Out. Pres of dryer scrubber pump P-2502 B',tag:'PI-25066B',unit:'barg',norm:'1.6-1.8'},
+  {desc:'Inlet pressure of dryer blower (B-2502 A)',tag:'PI-25064',unit:'barg',norm:'0.05-1'},
+  {desc:'Inlet pressure of dryer blower (B-2502 B)',tag:'PI-25065',unit:'barg',norm:'0.05-1'},
+  {desc:'Discharge Pressure of dryer blower (B-2502 A)',tag:'PI-25062',unit:'barg',norm:'0.2-0.5'},
+  {desc:'Discharge Pressure of dryer blower (B-2502 B)',tag:'PI-25063',unit:'barg',norm:'0.2-0.5'},
+  {desc:'Out. flow of dryer scrubber pump (P-2502 A/B)',tag:'FI-25015',unit:'t/h',norm:'45-60'},
+  {desc:'Purging flow to FT-25014',tag:'FICV-25016',unit:'kg/h',norm:'0.1'},
+  {desc:'Purging flow to FT-25015',tag:'FICV-25017',unit:'kg/h',norm:'0.1'},
+  {type:'area',label:'Area 2600 — Refrigeration'},
+  {desc:'Blanket pres. of D-2605 RW drum',tag:'',unit:'barg',norm:'0.3-0.5'},
+  {desc:'Outl. Pres of refrigeration pump (P-2602 A)',tag:'PI-26094',unit:'barg',norm:'4-4.5'},
+  {desc:'Outl Pres. of refrigeration pump (P-2602 B)',tag:'PI-26093',unit:'barg',norm:'4-4.5'},
+  {desc:'Level of Refrigeration drum (LI-26091 A)',tag:'LI-26091A',unit:'mm',norm:'0-170'},
+  {desc:'Level of Refrigeration drum (LI-26091 B)',tag:'LI-26091B',unit:'mm',norm:'948-1750'},
+  {desc:'Differential pressure of oil filter inside S-2612',tag:'PDI-26531',unit:'bar',norm:'0-0.3'},
+  {type:'area',label:'Area 2700 — Propylene Feed & COS Removal'},
+  {desc:'Level of COS Removal Column T-2704 A (must be kept full)',tag:'LI-27061',unit:'mm',norm:'500-550'},
+  {desc:'Pressure of COS Removal Column T-2704 A',tag:'PI-27061',unit:'barg',norm:'17-24.5'},
+  {desc:'Level of COS Removal Column T-2704 B (must be kept full)',tag:'LI-27062',unit:'mm',norm:'500-550'},
+  {desc:'Pressure of COS Removal Column T-2704 B',tag:'PI-27062',unit:'bar',norm:'17-24.5'},
+  {desc:'Level of C3 dryer T-2701 A (must be kept full)',tag:'LI-27591',unit:'mm',norm:'1200'},
+  {desc:'Pressure of propylene dryer T-2701 A',tag:'PT-27597',unit:'barg',norm:'17-20'},
+  {desc:'Level of C3 dryer T-2701 B (must be kept full)',tag:'LI-27592',unit:'mm',norm:'1200'},
+  {desc:'Pressure of propylene dryer T-2701 B',tag:'PT-27598',unit:'barg',norm:'17-20'},
+  {desc:"Fresh propylene filter F-2702 A pressure",tag:'PI-27075',unit:'barg',norm:'17-20'},
+  {desc:"Fresh propylene filter F-2702 B pressure",tag:'PI-27076',unit:'barg',norm:'17-20'},
+  {desc:'Level of propylene light end stripper T-2702',tag:'LI-27003',unit:'mm',norm:'700-1000'},
+  {desc:'Booster pump outlet pressure (P-2700 A)',tag:'PI-27095A',unit:'barg',norm:'29-30'},
+  {desc:'Booster pump outlet pressure (P-2700 B)',tag:'PI-27095B',unit:'barg',norm:'29-30'},
+  {desc:'Outlet temperature of E-2001',tag:'TI-27096',unit:'°C',norm:'≤27'},
+  {desc:'F-2706 hydrogen filter diff. pres.',tag:'PDI-27091',unit:'barg',norm:''},
+  {desc:'N2 flow inboard dist.pc of C-2703 A',tag:'FI-27542A',unit:'Nm³/h',norm:'0-0.2'},
+  {desc:'N2 flow outboard dist.pc of C-2703 A',tag:'FI-27543A',unit:'Nm³/h',norm:'0.5-2'},
+  {desc:'N2 flow inboard dist.pc of C-2703 B',tag:'FI-27542B',unit:'Nm³/h',norm:'0-0.2'},
+  {desc:'N2 flow outboard dist.pc of C-2703 B',tag:'FI-27543B',unit:'Nm³/h',norm:'0.5-2'},
+];
+</script>
+<script>
+// ════════════════════════════════════════════════
+// MODULE DATA — UTILITY FIELD
+// ════════════════════════════════════════════════
+const UTILITY_ROWS=[
+  {type:'area',label:'Area 3100 — Instrument & Plant Air System'},
+  {type:'check',desc:'Which compressors are in service C-3101 A/B/C',tag:'',unit:'',norm:'',options:['A','B','C']},
+  {desc:'CWS temperature to C-3101 A',tag:'TI-31054',unit:'°C',norm:''},
+  {desc:'CWR temperature from C-3101 A',tag:'TI-31053',unit:'°C',norm:''},
+  {desc:'Oil level of C-3101 A',tag:'',unit:'',norm:''},
+  {desc:'CWS temperature to C-3101 B',tag:'TI-31056',unit:'°C',norm:''},
+  {desc:'CWR temperature from C-3101 B',tag:'TI-31055',unit:'°C',norm:''},
+  {desc:'Oil level of C-3101 B',tag:'',unit:'',norm:''},
+  {desc:'CWS temperature to C-3101 C',tag:'TI-31061',unit:'°C',norm:''},
+  {desc:'CWR temperature from C-3101 C',tag:'TI-31060',unit:'°C',norm:''},
+  {desc:'Oil level of C-3101 C',tag:'',unit:'',norm:''},
+  {desc:'Pressure of K.O drum D-3101',tag:'PI-31051',unit:'barg',norm:''},
+  {desc:'Level of K.O drum D-3101',tag:'LI-31051',unit:'mm',norm:''},
+  {desc:'Inlet pressure of Dryer D-3104 A',tag:'PI-31582',unit:'barg',norm:''},
+  {desc:'Inlet pressure of Dryer D-3104 C',tag:'PI-31583',unit:'barg',norm:''},
+  {desc:'Inlet pressure of Dryer D-3104 B',tag:'PI-31586',unit:'barg',norm:''},
+  {desc:'Inlet pressure of Dryer D-3104 D',tag:'PI-31588',unit:'barg',norm:''},
+  {desc:'CWS temperature to PK-3101 A/B',tag:'TI-31063',unit:'°C',norm:''},
+  {desc:'CWR temperature from PK-3101 A/B',tag:'TI-31062',unit:'°C',norm:''},
+  {desc:'Pressure of IA receiver D-3103 A',tag:'PI-31058',unit:'barg',norm:''},
+  {desc:'Pressure of IA receiver D-3103 B',tag:'PI-31059',unit:'barg',norm:''},
+  {desc:'Pressure of PA receiver D-3102',tag:'PI-31054',unit:'barg',norm:''},
+  {desc:'Level of Diesel tank',tag:'',unit:'',norm:''},
+  {desc:'Oil level of C-3102',tag:'',unit:'',norm:''},
+  {type:'area',label:'Area 3200 — Flare System'},
+  {desc:'Pressure of IA for ignition (before PCV-32505(6))',tag:'PI-32511',unit:'barg',norm:''},
+  {desc:'Pressure of IA for ignition (after PCV-32505(6))',tag:'PI-32512',unit:'barg',norm:''},
+  {desc:'Pressure of Fuel gas for ignition (before PCV-32507(8))',tag:'PI-32513',unit:'barg',norm:''},
+  {desc:'Pressure of Fuel gas for ignition (after PCV-32507(8))',tag:'PI-32514',unit:'barg',norm:''},
+  {desc:'Pressure of Fuel gas to Pilots',tag:'PI-32515',unit:'barg',norm:''},
+  {desc:'Pressure of Fuel gas to flare header for purging',tag:'PI-32516',unit:'barg',norm:''},
+  {desc:'Pressure of Nitrogen to flare header for purging',tag:'PI-32517',unit:'barg',norm:''},
+  {desc:'Pressure of discharge line of LPG cylinders',tag:'PI-32519',unit:'barg',norm:''},
+  {type:'radio',desc:'Status of blower B-3201',tag:'',unit:'',norm:'',options:['Running','Not Running']},
+  {type:'area',label:'Area 3300 — HP Nitrogen'},
+  {type:'radio',desc:'Status of compressor C-3301',tag:'',unit:'',norm:'',options:['Running','Not Running']},
+  {desc:'CWS Temperature to HP Compressor C-3301',tag:'TI-33006',unit:'°C',norm:''},
+  {desc:'CWR Temperature from HP Compressor C-3301',tag:'TI-33007',unit:'°C',norm:''},
+  {desc:'LN Pressure to HP compressor C-3301',tag:'PI-33009',unit:'barg',norm:''},
+  {desc:'Pressure of HP nitrogen buffer vessel D-3301',tag:'PI-33006',unit:'barg',norm:''},
+  {desc:'Supply pressure of HP nitrogen to plant',tag:'PI-33007',unit:'barg',norm:''},
+  {desc:'Supply temperature of HP nitrogen to plant',tag:'TI-33003',unit:'°C',norm:''},
+  {type:'area',label:'Area 3400 — Cooling Water System'},
+  {type:'check',desc:'Which pumps are in service P-3401 A/B/C/D',tag:'',unit:'',norm:'',options:['A','B','C','D']},
+  {desc:'Discharge pressure of pump P-3401 A',tag:'PI-34052',unit:'barg',norm:''},
+  {desc:'Oil level of pump P-3401 A',tag:'',unit:'',norm:''},
+  {desc:'Discharge pressure of pump P-3401 B',tag:'PI-34053',unit:'barg',norm:''},
+  {desc:'Oil level of pump P-3401 B',tag:'',unit:'',norm:''},
+  {desc:'Discharge pressure of pump P-3401 C',tag:'PI-34054',unit:'barg',norm:''},
+  {desc:'Oil level of pump P-3401 C',tag:'',unit:'',norm:''},
+  {desc:'Discharge pressure of pump P-3401 D',tag:'PI-34055',unit:'barg',norm:''},
+  {desc:'Oil level of pump P-3401 D',tag:'',unit:'',norm:''},
+  {desc:'Cooling water supply temperature',tag:'TI-34006',unit:'°C',norm:''},
+  {type:'check',desc:'Which fans are in service B-3401 A/B/C/D',tag:'',unit:'',norm:'',options:['A','B','C','D']},
+  {desc:'Oil level of Cooling tower fan MB-3401 A',tag:'',unit:'',norm:''},
+  {desc:'Oil level of Cooling tower fan MB-3401 B',tag:'',unit:'',norm:''},
+  {desc:'Oil level of Cooling tower fan MB-3401 C',tag:'',unit:'',norm:''},
+  {desc:'Oil level of Cooling tower fan MB-3401 D',tag:'',unit:'',norm:''},
+  {type:'check',desc:'Which filters are in service F-3405 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Inlet pressure of Side stream filters F-3405 A/B',tag:'PI-34511',unit:'barg',norm:''},
+  {desc:'Inlet flow of Side stream Filter F-3405 A',tag:'FI-34512',unit:'',norm:''},
+  {desc:'Pressure difference of Side stream filter F-3405 A',tag:'PDI-34511',unit:'barg',norm:''},
+  {desc:'Inlet flow of Side stream Filter F-3405 B',tag:'FI-34514',unit:'',norm:''},
+  {desc:'Pressure difference of Side stream filter F-3405 B',tag:'PDI-34512',unit:'barg',norm:''},
+  {desc:'Level of Biocide dosing tank TK-3402',tag:'LI-34522',unit:'mm',norm:''},
+  {type:'check',desc:'Which pumps are in service P-3402 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Supply pressure of Biocide dosing pump P-3402 A',tag:'PI-34522',unit:'barg',norm:''},
+  {desc:'Stroke of Biocide dosing pump P-3402 A',tag:'',unit:'',norm:''},
+  {desc:'Supply pressure of Biocide dosing pump P-3402 B',tag:'PI-34523',unit:'barg',norm:''},
+  {desc:'Stroke of Biocide dosing pump P-3402 B',tag:'',unit:'',norm:''},
+  {desc:'Level of Corrosion inhibitor dosing tank TK-3403',tag:'LI-34532',unit:'mm',norm:''},
+  {type:'check',desc:'Which pumps are in service P-3403 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Supply pressure Corrosion inhibitor pump P-3403 A',tag:'PI-34532',unit:'barg',norm:''},
+  {desc:'Stroke of Corrosion inhibitor pump P-3403 A',tag:'',unit:'',norm:''},
+  {desc:'Supply pressure Corrosion inhibitor pump P-3403 B',tag:'PI-34533',unit:'barg',norm:''},
+  {desc:'Stroke of Corrosion inhibitor pump P-3403 B',tag:'',unit:'',norm:''},
+  {desc:'Level of Antiscale dosing tank TK-3404',tag:'LI-34542',unit:'mm',norm:''},
+  {type:'check',desc:'Which pumps are in service P-3404 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Supply pressure of antiscale pump P-3404 A',tag:'PI-34542',unit:'barg',norm:''},
+  {desc:'Stroke of Antiscale pump P-3404 A',tag:'',unit:'',norm:''},
+  {desc:'Supply pressure of Antiscale pump P-3404 B',tag:'PI-34543',unit:'barg',norm:''},
+  {desc:'Stroke of Antiscale pump P-3404 B',tag:'',unit:'',norm:''},
+  {type:'area',label:'Area 3510 — Safety Shower (PP) & 3520 (HDPE)'},
+  {desc:'Instrument air pressure for blanketing (3510)',tag:'PI-35007D',unit:'barg',norm:''},
+  {desc:'Level of Safety shower buffer drum D-3511',tag:'LI-35013',unit:'mm',norm:''},
+  {desc:'Temperature of Safety shower buffer drum D-3511',tag:'TI-35012',unit:'°C',norm:''},
+  {desc:'Temperature from Refrigeration package PK-3511',tag:'TI-35013',unit:'°C',norm:''},
+  {desc:'Temperature of water from distribution system (3510)',tag:'TI-35014',unit:'°C',norm:''},
+  {type:'check',desc:'Which pumps in service P-3511 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Discharge pressure of P-3511 A',tag:'PI-35007A',unit:'barg',norm:''},
+  {desc:'Oil level of P-3511 A',tag:'',unit:'',norm:''},
+  {desc:'Discharge pressure of P-3511 B',tag:'PI-35007B',unit:'barg',norm:''},
+  {desc:'Oil level of P-3511 B',tag:'',unit:'',norm:''},
+  {desc:'Supply pressure of water to distribution (3510)',tag:'PI-35007C',unit:'barg',norm:''},
+  {desc:'Instrument air pressure for blanketing (3520)',tag:'PI-35009D',unit:'barg',norm:''},
+  {desc:'Level of Safety shower buffer drum D-3521',tag:'LI-35023',unit:'mm',norm:''},
+  {desc:'Temperature of Safety shower buffer drum D-3521',tag:'TI-35022',unit:'°C',norm:''},
+  {desc:'Temperature from Refrigeration package PK-3521',tag:'TI-35023',unit:'°C',norm:''},
+  {desc:'Temperature of water from distribution system (3520)',tag:'TI-35024',unit:'°C',norm:''},
+  {type:'check',desc:'Which pumps in service P-3521 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Discharge pressure of P-3521 A',tag:'PI-35009A',unit:'barg',norm:''},
+  {desc:'Oil level of P-3521 A',tag:'',unit:'',norm:''},
+  {desc:'Discharge pressure of P-3521 B',tag:'PI-35009B',unit:'barg',norm:''},
+  {desc:'Oil level of P-3521 B',tag:'',unit:'',norm:''},
+  {desc:'Supply pressure of water to distribution (3520)',tag:'PI-35009C',unit:'barg',norm:''},
+  {type:'area',label:'Area 3600 — Waste Water & Storm Water'},
+  {desc:'Level of PP waste water basin A-3601',tag:'LI-36001B',unit:'mm',norm:''},
+  {type:'check',desc:'Which pumps in service P-3601 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Discharge Pressure waste water pump P-3601 A',tag:'PI-36001A',unit:'barg',norm:''},
+  {desc:'Discharge Pressure waste water pump P-3601 B',tag:'PI-36001B',unit:'barg',norm:''},
+  {desc:'Pressure of Steam to waste water basin A-3601',tag:'PI-36005',unit:'barg',norm:''},
+  {type:'openclose',desc:'Position of Sluice gate valve MX-3601',tag:'MX-3601',unit:'',norm:''},
+  {desc:'Level of HDPE waste water basin A-3602',tag:'LI-36003B',unit:'mm',norm:''},
+  {type:'check',desc:'Which pumps in service P-3602 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Discharge Pressure waste water pump P-3602 A',tag:'PI-36002A',unit:'barg',norm:''},
+  {desc:'Discharge Pressure waste water pump P-3602 B',tag:'PI-36002B',unit:'barg',norm:''},
+  {desc:'Pressure of Steam to waste water basin A-3602',tag:'PI-36006',unit:'barg',norm:''},
+  {type:'openclose',desc:'Position of Sluice gate valve MX-3603',tag:'MX-3603',unit:'',norm:''},
+  {desc:'Level of U&O waste water basin A-3603',tag:'LI-36005B',unit:'mm',norm:''},
+  {type:'check',desc:'Which pumps in service P-3603 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Discharge Pressure waste water pump P-3603 A',tag:'PI-36003A',unit:'barg',norm:''},
+  {desc:'Discharge Pressure waste water pump P-3603 B',tag:'PI-36003B',unit:'barg',norm:''},
+  {desc:'Pressure of Steam to waste water basin A-3603',tag:'PI-36007',unit:'barg',norm:''},
+  {type:'openclose',desc:'Position of Sluice gate valve MX-3605',tag:'MX-3605',unit:'',norm:''},
+  {type:'check',desc:'Which pumps in service P-3605 A/B',tag:'',unit:'',norm:'',options:['A','B']},
+  {desc:'Discharge Pressure Storm/fire water pump P-3605 A',tag:'PI-36008A',unit:'barg',norm:''},
+  {desc:'Discharge Pressure Storm/fire water pump P-3605 B',tag:'PI-36008B',unit:'barg',norm:''},
+  {desc:'Pressure of Steam to Storm/fire water pit A-3605',tag:'PI-36009',unit:'barg',norm:''},
+  {type:'area',label:'Area 3900 — Fire & Gas / 3910 Natural Gas'},
+  {desc:'Pressure of Steam to Fire water basin A-3901 A',tag:'PI-39005',unit:'barg',norm:''},
+  {desc:'Pressure of Steam to Fire water basin A-3901 B',tag:'PI-39006',unit:'barg',norm:''},
+  {desc:'Fire header pressure — Jockey pump P-3902A',tag:'PT-39003C',unit:'barg',norm:''},
+  {desc:'Fire header pressure — Jockey pump P-3902B',tag:'PT-39004C',unit:'barg',norm:''},
+  {desc:'Level of diesel tank A',tag:'LI-39002',unit:'mm',norm:''},
+  {desc:'Level of diesel tank B',tag:'LI-39004',unit:'mm',norm:''},
+  {desc:'Pressure of Steam',tag:'PI-39011',unit:'barg',norm:''},
+  {desc:'Temperature of Steam',tag:'TI-39011',unit:'°C',norm:''},
+  {desc:'Inlet pressure of Fuel gas K.O drum D-3913',tag:'PI-39013',unit:'barg',norm:''},
+  {desc:'Inlet temperature of Fuel gas K.O drum D-3913',tag:'TI-39013',unit:'°C',norm:''},
+  {desc:'Pressure of Fuel gas K.O drum D-3913',tag:'PI-39015',unit:'barg',norm:''},
+  {desc:'Liquid level of Fuel gas K.O drum D-3913',tag:'LI-39007',unit:'mm',norm:''},
+  {desc:'Pressure of Fuel gas to HDPE plant',tag:'PI-39014',unit:'barg',norm:''},
+  {desc:'Temperature of Fuel gas to HDPE plant',tag:'TI-39014',unit:'°C',norm:''},
+  {desc:'Liquid level of Gasoline drum D-3914',tag:'LI-39008',unit:'mm',norm:''},
+  {desc:'Pressure of Gasoline drum D-3914',tag:'PI-39016',unit:'barg',norm:''},
+];
+</script>
+<script>
+// ════════════════════════════════════════════════
+// MODULE DATA — EXTRUDER FIELD
+// ════════════════════════════════════════════════
+const EXTRUDER_ROWS=[
+  {type:'area',label:'Extruder Field Log Sheet'},
+  {desc:'Ti28006 — C2801 A/B suction temperature',tag:'Ti28006',unit:'°C',norm:'0-110'},
+  {desc:'Ti28009 — C2801 A/B suction temperature',tag:'Ti28009',unit:'°C',norm:'0-50'},
+  {desc:'Ti28002 — C2801A discharge temperature',tag:'Ti28002',unit:'°C',norm:'0-60'},
+  {desc:'Ti28030 — C2801B discharge temperature',tag:'Ti28030',unit:'°C',norm:'0-60'},
+  {desc:'Pi28006 — C2801A discharge pressure',tag:'Pi28006',unit:'barg',norm:'0.5-2.2'},
+  {desc:'Pi28031 — C2801B discharge pressure',tag:'Pi28031',unit:'barg',norm:'0.35-2.1'},
+  {desc:'Ti28952',tag:'Ti28952',unit:'°C',norm:'0-125'},
+  {desc:'PI28953',tag:'PI28953',unit:'barg',norm:'0.3-0.9'},
+  {desc:'TI28451 — D-2816',tag:'TI28451',unit:'°C',norm:'0-140'},
+  {desc:'TI28452 — D-2817',tag:'TI28452',unit:'°C',norm:'0-140'},
+  {desc:'PI28452 — P2810A discharge',tag:'PI28452',unit:'°C',norm:'0-55'},
+  {desc:'PI28453 — P2810B discharge',tag:'PI28453',unit:'°C',norm:'0-55'},
+  {desc:'FT28401 — P2810A/B discharge',tag:'FT28401',unit:'m³/kg',norm:'0-350'},
+  {desc:'PI28451 — LS for D2816',tag:'PI28451',unit:'barg',norm:'0-1.5'},
+  {desc:'PI-28980 — forward pressure',tag:'PI-28980',unit:'barg',norm:'0-10'},
+  {desc:'PI-28981 — backward pressure',tag:'PI-28981',unit:'barg',norm:'0-10'},
+  {desc:'TI28651 — D-2818',tag:'TI28651',unit:'°C',norm:'10-35'},
+  {desc:'PI28652 — P-2811A discharge',tag:'PI28652',unit:'barg',norm:'1-4'},
+  {desc:'PI28654 — peroxide discharge',tag:'PI28654',unit:'barg',norm:'1-4'},
+  {desc:'PI28653 — P-2811B discharge',tag:'PI28653',unit:'barg',norm:'1-4'},
+  {desc:'FT28601 — peroxide flow',tag:'FT28601',unit:'kg/hr',norm:'0-40'},
+  {desc:'PI28960 — MM lube oil discharge',tag:'PI28960',unit:'barg',norm:'1-5'},
+  {desc:'PI28964 — MGR lube oil discharge',tag:'PI28964',unit:'barg',norm:'1-5'},
+  {desc:'PI28966 — Nitrogen for ABC seal',tag:'PI28966',unit:'barg',norm:'0.15'},
+  {desc:'PI28970A — CCW discharge',tag:'PI28970A',unit:'barg',norm:'4'},
+  {desc:'PI28970B — CCW discharge',tag:'PI28970B',unit:'barg',norm:'4'},
+  {desc:'PDI28967 — MM lube oil filter',tag:'PDI28967',unit:'barg',norm:''},
+  {desc:'TI28970 — P2805A/B discharge',tag:'TI28970',unit:'°C',norm:'0-100'},
+  {desc:'PI28990A — P2801A discharge',tag:'PI28990A',unit:'barg',norm:'0-10'},
+  {desc:'PI28990B — P2801B discharge',tag:'PI28990B',unit:'barg',norm:'0-10'},
+  {desc:'TI28991 — P2801A/B discharge',tag:'TI28991',unit:'°C',norm:'0-100'},
+  {desc:'FE28945 — P2801A/B discharge',tag:'FE28945',unit:'m³/kg',norm:'360-500'},
+  {desc:'PI28995 — D-Y2801 tank',tag:'PI28995',unit:'barg',norm:'4-6'},
+  {desc:'LI28990 — D-Y2801 tank',tag:'LI28990',unit:'m',norm:''},
+  {desc:'TI28993 — others temperature',tag:'TI28993',unit:'°C',norm:'220-380'},
+  {desc:'Ti28994 — die plate temperature',tag:'Ti28994',unit:'°C',norm:'220-380'},
+  {desc:'PI28994 — die line pressure',tag:'PI28994',unit:'barg',norm:'0-10'},
+  {desc:'PI28992 — other line pressure',tag:'PI28992',unit:'barg',norm:'0-10'},
+  {desc:'FI28941 — others flow',tag:'FI28941',unit:'m³/hr',norm:'14.4-30'},
+  {desc:'FI28942 — die flow',tag:'FI28942',unit:'m³/hr',norm:'38.4-70'},
+  {desc:'FI28001 — N2800A',tag:'FI28001',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28025 — N2800A',tag:'FI28025',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28003 — N2800B',tag:'FI28003',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28004 — N2800B',tag:'FI28004',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI25069 — N2502',tag:'FI25069',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI25067 — N2502',tag:'FI25067',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI25070 — N2503',tag:'FI25070',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI25068 — N2503',tag:'FI25068',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28012A — N2802A',tag:'FI28012A',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28013A — N2802A',tag:'FI28013A',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28012B — N2802B',tag:'FI28012B',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28013B — N2802B',tag:'FI28013B',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28017 — N2803',tag:'FI28017',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28018 — N2803',tag:'FI28018',unit:'Nm³/hr',norm:'0'},
+  {desc:'FI28104 — N2801',tag:'FI28104',unit:'Nm³/hr',norm:'5'},
+  {desc:'FI28105 — N2801',tag:'FI28105',unit:'Nm³/hr',norm:'5'},
+  {desc:'FI28980 — PCW to Cutter chamber',tag:'FI28980',unit:'m³/hr',norm:''},
+  {desc:'IIC-28103B current',tag:'IIC-28103B',unit:'A',norm:''},
+  {desc:'PDI-28990 pressure difference',tag:'PDI-28990',unit:'barg',norm:''},
+  {desc:'PI-35037',tag:'PI-35037',unit:'barg',norm:'3.5-6'},
+  {desc:'PI-35036A',tag:'PI-35036A',unit:'barg',norm:'9.5-11'},
+  {desc:'TI-28992',tag:'TI-28992',unit:'°C',norm:''},
+];
+
+// ════════════════════════════════════════════════
+// MODULE DATA — PP DCS (HOURLY MATRIX)
+// ════════════════════════════════════════════════
+const DCS_COLS=[
+  {id:'c3_bl',    label:'C3 from BL',    sub:'T/H',         norm:''},
+  {id:'prod',     label:'Production',    sub:'T/H',         norm:''},
+  {id:'silo',     label:'Loading Silo',  sub:'',            norm:''},
+  {id:'teal_c3',  label:'Teal/C3',       sub:'kg/t',        norm:''},
+  {id:'teal_d',   label:'Teal/D Ratio',  sub:'g/g',         norm:''},
+  {id:'cat',      label:'Pure Catalyst', sub:'g/h',         norm:''},
+  {id:'stroke',   label:'Pump Stroke',   sub:'%',           norm:'0-100'},
+  {id:'h2c3_01',  label:'H2/C3 R-2201',  sub:'g/t',         norm:''},
+  {id:'h2c3_02',  label:'H2/C3 R-2202',  sub:'g/t',         norm:''},
+  {id:'h2f_01',   label:'H2 Flow R-2201', sub:'',           norm:''},
+  {id:'h2f_02',   label:'H2 Flow R-2202', sub:'',           norm:''},
+  {id:'h2ppm_01', label:'H2 ppm R-2201',  sub:'ppm',        norm:''},
+  {id:'h2ppm_02', label:'H2 ppm R-2202',  sub:'ppm',        norm:''},
+  {id:'c3f_01',   label:'C3 Flow R-2201', sub:'t/h',        norm:''},
+  {id:'c3f_02',   label:'C3 Flow R-2202', sub:'t/h',        norm:''},
+  {id:'dens_01',  label:'Dens. R-2201',   sub:'kg/m³',      norm:''},
+  {id:'dens_02',  label:'Dens. R-2202',   sub:'kg/m³',      norm:''},
+  {id:'homo',     label:'HOMO Coeff',     sub:'-',          norm:''},
+  {id:'t_d2201',  label:'T D-2201',       sub:'°C',         norm:''},
+  {id:'t_r2200',  label:'T R-2200',       sub:'°C',         norm:''},
+  {id:'t_r2201',  label:'T R-2201',       sub:'°C',         norm:''},
+  {id:'t_r2202',  label:'T R-2202',       sub:'°C',         norm:''},
+  {id:'p_d2202',  label:'P D-2202',       sub:'Bar',        norm:''},
+  {id:'amp_r2200',label:'Amp R-2200',     sub:'DI',         norm:''},
+  {id:'amp_r2201',label:'Amp R-2201',     sub:'DI',         norm:''},
+  {id:'amp_r2202',label:'Amp R-2202',     sub:'DI',         norm:''},
+  {id:'xs',       label:'XS %',           sub:'%',          norm:''},
+  {id:'mfr_m2501',label:'M2501 MFR',      sub:'Powder',     norm:''},
+  {id:'c2_m2501', label:'M2501 C2%',      sub:'%',          norm:''},
+  {id:'mfr_d2301',label:'D2301 MFR',      sub:'Powder',     norm:''},
+  {id:'mfr_ext',  label:'Extrus. MFR',    sub:'Pellet',     norm:''},
+  {id:'c2_ext',   label:'C2 content',     sub:'%',          norm:''},
+  {id:'h2c2',     label:'H2/C2',          sub:'',           norm:''},
+  {id:'c2c3',     label:'C2/(C2+C3)',      sub:'',           norm:''},
+  {id:'f_eth',    label:'Flow C2',        sub:'kg/h',       norm:''},
+  {id:'f_prop',   label:'Flow C3',        sub:'kg/h',       norm:''},
+  {id:'gpr_dens', label:'GPR Density',    sub:'kg/m³',      norm:''},
+  {id:'vel',      label:'Gas Velocity',   sub:'m/s',        norm:''},
+  {id:'iv',       label:'Intr. Visc.',    sub:'',           norm:''},
+  {id:'d2320',    label:'D2320 Level',    sub:'',           norm:''},
+  {id:'ti22017',  label:'TI-22017',       sub:'°C',         norm:''},
+  {id:'d2202_li', label:'D2202 LI-22014', sub:'',           norm:''},
+  {id:'c2_set',   label:'C2 Setpoint',    sub:'',           norm:''},
+];
+function getDCSHours(){
+  const allH=[];
+  for(let h=0;h<24;h++) allH.push(String(h).padStart(2,'0')+':00');
+  return allH;
+}
+
+function buildDCSTbl(){
+  const hours=getDCSHours();
+  const now=new Date().getHours();
+  let html='<table class="dcs-tbl"><thead>';
+  // Header row 1
+  html+='<tr><th rowspan="2" style="min-width:40px">H</th>';
+  html+=`<th colspan="3" class="grp">Production</th>`;
+  html+=`<th colspan="4" class="grp">Catalyst / Donor</th>`;
+  html+=`<th colspan="6" class="grp">H2 / C3</th>`;
+  html+=`<th colspan="2" class="grp">Density</th>`;
+  html+=`<th rowspan="2" class="grp">HOMO</th>`;
+  html+=`<th colspan="4" class="grp">Temperature</th>`;
+  html+=`<th rowspan="2" class="grp">P D-2202</th>`;
+  html+=`<th colspan="3" class="grp">Axial Amp.</th>`;
+  html+=`<th colspan="6" class="grp">Quality Control</th>`;
+  html+=`<th colspan="2" class="grp">Analyzer</th>`;
+  html+=`<th colspan="2" class="grp">Flow</th>`;
+  html+=`<th colspan="3" class="grp">GPR / Gas Phase</th>`;
+  html+=`<th colspan="5" class="grp">Other</th>`;
+  html+='</tr><tr>';
+  DCS_COLS.forEach(c=>{
+    html+=`<th title="${c.label}">${c.label.slice(0,10)}<br><span style="font-size:8px;opacity:.7">${c.sub}</span></th>`;
+  });
+  html+='</tr></thead><tbody>';
+
+  hours.forEach(h=>{
+    const hNum=parseInt(h);
+    const isCurrent=hNum===now;
+    const isDay=hNum>=8&&hNum<20;
+    const bgRow=isCurrent?'class="cur-hour"':'';
+    html+=`<tr ${bgRow}>`;
+    html+=`<td class="hour-cell" style="color:${isDay?'var(--day)':'var(--night)'}${isCurrent?';font-weight:700':''}">${h}</td>`;
+    DCS_COLS.forEach(c=>{
+      const e=getEntry('dcs',c.id,h);
+      const locked=e&&e.by&&e.by!==OP.name&&e.val;
+      const val=e?.val||'';
+      const status=e?.status||'neutral';
+      const cls=['dcs-inp',status==='bad'?'bad':status==='ok'?'ok':'',locked?'locked':''].filter(Boolean).join(' ');
+      const dis=locked?'disabled':'';
+      html+=`<td><input class="${cls}" type="text" value="${val}" placeholder="" ${dis} title="${c.label} — ${h}" onchange="onDCS('${c.id}','${h}',this)" onfocus="this.select()" /></td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+function onDCS(colId,hour,el){
+  const existing=getEntry('dcs',colId,hour);
+  if(existing&&existing.val&&existing.by&&existing.by!==OP.name){
+    el.value=existing.val;
+    toast('🔒 '+existing.by+' tərəfindən daxil edilib — dəyişdirilə bilməz',true);
+    return;
+  }
+  const col=DCS_COLS.find(c=>c.id===colId);
+  const range=col?parseRange(col.norm):null;
+  const val=el.value.trim();
+  if(val){
+    const e=setEntry('dcs',colId,hour,val,range);
+    el.classList.remove('ok','bad');
+    el.classList.add(e.status==='bad'?'bad':e.status==='ok'?'ok':'');
+    // show tooltip with operator info
+    el.title=e.by+' · '+e.ts;
+  } else {
+    localStorage.removeItem(sk('dcs',colId,hour));
+    el.classList.remove('ok','bad');
+    el.title='';
+  }
+  updateProgress();
+}
+
+// ════════════════════════════════════════════════
+// MODULE ROUTER
+// ════════════════════════════════════════════════
+function getModRows(mod){
+  if(mod==='pp_field') return PP_FIELD_ROWS;
+  if(mod==='utility')  return UTILITY_ROWS;
+  if(mod==='extruder') return EXTRUDER_ROWS;
+  if(mod==='dcs')      return DCS_COLS.map(c=>({...c,desc:c.label+' '+c.sub,tag:c.id,unit:c.sub}));
+  return [];
+}
+</script>
+
+<button id="install-btn" onclick="installApp()">
+  📲 App kimi quraşdır
+</button>
+
+<script>
+// ═══════════════════════════════════════
+// PWA — Service Worker & Install
+// ═══════════════════════════════════════
+let deferredPrompt = null;
+
+const SW_CODE = `
+const CACHE = 'socar-log-v1';
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll([]))
+  );
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(clients.claim());
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request).catch(() => new Response('Offline', {status: 503})))
+  );
+});
+`;
+
+if('serviceWorker' in navigator) {
+  try {
+    const blob = new Blob([SW_CODE], {type: 'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl, {scope: './'})
+      .then(() => console.log('SW registered'))
+      .catch(e => console.log('SW failed (normal for file://):', e.message));
+  } catch(e) {}
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'none';
+  deferredPrompt = null;
+  toast('✓ Uğurla quraşdırıldı!');
+});
+
+function installApp() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      deferredPrompt = null;
+      if(r.outcome === 'accepted') toast('✓ Quraşdırılır...');
+    });
+  } else {
+    // Show manual instructions
+    showInstallGuide();
+  }
+}
+
+function showInstallGuide() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  let msg = '';
+  if(isIOS) {
+    msg = 'iOS-da quraşdırmaq üçün:\n1. Safari-də açın\n2. Aşağıda "Paylaş" (□↑) düyməsinə basın\n3. "Ana Ekrana Əlavə Et" seçin';
+  } else if(isAndroid) {
+    msg = 'Android-də quraşdırmaq üçün:\n1. Chrome-da açın\n2. Menyuya (⋮) basın\n3. "Ana Ekrana Əlavə Et" seçin';
+  } else {
+    msg = 'Kompüterdə quraşdırmaq üçün:\n1. Chrome/Edge-də açın\n2. Ünvan çubuğundakı ⊕ ikonasına basın\n3. "Quraşdır" seçin\n\nVəya: Menyu → "SOCAR Log Sheet-i quraşdır"';
+  }
+  alert(msg);
+}
+
+function confirmLogout(){
+  const msg=document.getElementById('logout-msg');
+  if(msg) msg.textContent='Salam, '+OP.name+'! Sistemdən çıxmaq istəyirsiniz? Saxlanılmamış məlumat olmayacaq.';
+  document.getElementById('logout-confirm').classList.add('on');
+}
+function closeLogout(){
+  document.getElementById('logout-confirm').classList.remove('on');
+}
+function doLogout(){
+  closeLogout();
+  // Reset OP state
+  OP={name:'',email:'',shift:'day',date:'',initials:'--'};
+  activeModule='pp_field';
+  activeSlot='';
+  // Hide app, show login
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='flex';
+  // Clear login form
+  document.getElementById('l-name').value='';
+  document.getElementById('l-email').value='';
+  document.getElementById('l-date').value=new Date().toISOString().split('T')[0];
+  // Hide error
+  const errEl=document.getElementById('login-err');
+  if(errEl) errEl.style.display='none';
+  // Clear rendered panels
+  const panels=document.getElementById('main-panels');
+  if(panels) panels.innerHTML='';
+  toast('Uğurla çıxış edildi');
+}
+
+</script>
+
+<div class="logout-confirm" id="logout-confirm">
+  <div class="logout-box">
+    <div class="logout-box-t">Çıxış</div>
+    <div class="logout-box-s" id="logout-msg">Sistemdən çıxmaq istəyirsiniz?</div>
+    <div class="logout-box-acts">
+      <button class="logout-cancel" onclick="closeLogout()">Ləğv et</button>
+      <button class="logout-ok" onclick="doLogout()">Çıx</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
